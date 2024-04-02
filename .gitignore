@@ -8,3 +8,6 @@ coverage/
 # IDEs and editors
 .idea
 .vscode
+
+# mongodb
+mongo/
