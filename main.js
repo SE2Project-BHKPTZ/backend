@@ -5,7 +5,16 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const socketio = require('socket.io');
 const { instrument } = require('@socket.io/admin-ui');
+const mongoose = require('mongoose');
 const userRouter = require('./src/routes/user.route');
+
+mongoose
+  .connect(`mongodb://${process.env.MONGO_HOST}:27017/wizard?authSource=admin`, {
+    user: process.env.MONGO_INITDB_ROOT_USERNAME,
+    pass: process.env.MONGO_INITDB_ROOT_PASSWORD,
+  })
+  .then(() => console.log('MongoDB Connected'))
+  .catch((err) => console.log(err));
 
 const app = express();
 

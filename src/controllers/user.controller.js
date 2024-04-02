@@ -1,6 +1,17 @@
+const userService = require('../services/user.service');
+
 async function getUser(req, res, next) {
   try {
-    res.json({ status: 'success', data: { userId: 'demo' } });
+    res.json({ status: 'success', data: await userService.getAll() });
+  } catch (err) {
+    console.error('Error while getting user', err.message);
+    next(err);
+  }
+}
+
+async function addUser(req, res, next) {
+  try {
+    res.json({ status: 'success', data: await userService.add(req.body.username,req.body.password) });
   } catch (err) {
     console.error('Error while getting user', err.message);
     next(err);
@@ -9,4 +20,5 @@ async function getUser(req, res, next) {
 
 module.exports = {
   getUser,
+  addUser
 };
