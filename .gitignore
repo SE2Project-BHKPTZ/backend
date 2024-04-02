@@ -1,0 +1,10 @@
+# Dependency directories
+node_modules/
+
+# Env and coverage
+.env
+coverage/
+
+# IDEs and editors
+.idea
+.vscode
