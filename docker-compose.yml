@@ -1,0 +1,25 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo:/data/db
+    restart: unless-stopped
+  backend:
+    image: "node:20-alpine"
+    working_dir: /home/node/app
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/home/node/app
+      - /home/node/app/mongo
+    command: "npm startdocker"
+    container_name: backend
+    restart: unless-stopped
+  
