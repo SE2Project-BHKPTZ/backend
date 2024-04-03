@@ -20,7 +20,7 @@ async function addUser(req, res, next) {
   } catch (err) {
     console.error('Error while getting user', err.message);
     next(err);
-  }/*  */
+  }
 }
 
 module.exports = {

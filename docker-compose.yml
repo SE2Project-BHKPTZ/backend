@@ -19,7 +19,7 @@ services:
     volumes:
       - .:/home/node/app
       - /home/node/app/mongo
-    command: "npm start"
+    command: "npm startdocker"
     container_name: backend
     restart: unless-stopped
   
