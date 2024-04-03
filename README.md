@@ -10,6 +10,10 @@ To run the projects you need to set the following environment variables (in an `
 - `MONGO_HOST` - URL or hostname of the mongodb database
 - `MONGO_INITDB_ROOT_USERNAME` - username for mongodb is used in the backend and the database
 - `MONGO_INITDB_ROOT_PASSWORD` - password for mongodb is used in the backend and the database
+- `REFRESH_TOKEN_SECRET` - secret used for jwt access token
+- `REFRESH_TOKEN_TTL` - TTL for jwt access token
+- `REFRESH_TOKEN_SECRET` - secret used for jwt refresh token
+- `REFRESH_TOKEN_TTL` - TTL used for jwt refresh token
 Example:
 
 ```
@@ -20,6 +24,11 @@ MONGO_HOST=localhost
 #mongo db
 MONGO_INITDB_ROOT_USERNAME=user
 MONGO_INITDB_ROOT_PASSWORD=passwort
+#JWT
+REFRESH_TOKEN_SECRET=supersecret
+REFRESH_TOKEN_TTL=2h
+ACCESS_TOKEN_SECRET=secret
+ACCESS_TOKEN_TTL=2d
 ```
 
 You can use the [Bcrypt generator](https://bcrypt-generator.com/) to generate the bcrypt hash for the `SIO_ADMINUI_PASSWORD`.

@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
-const { add } = require('./user.service');
+const { register } = require('./user.service');
 
 jest.mock('bcryptjs', () => ({
   genSalt: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock('../models/user.model', () => jest.fn().mockImplementation(() => ({
   save: jest.fn(),
 })));
 
-describe('add function', () => {
+describe('register function', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -35,7 +35,7 @@ describe('add function', () => {
       }),
     }));
 
-    const result = await add(username, password);
+    const result = await register(username, password);
 
     expect(bcrypt.genSalt).toHaveBeenCalledWith(10);
     expect(bcrypt.hash).toHaveBeenCalledWith(password, mockedSalt);
