@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node main.js",
     "startdocker": "npm i && npm run start",
-    "test": "jest .",
+    "test": "jest --config=./jest.config.js",
+    "test:coverage": "jest --config=./jest.config.js --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
