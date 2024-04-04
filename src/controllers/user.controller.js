@@ -1,11 +1,10 @@
 const userService = require('../services/user.service');
 
-async function getUser(req, res, next) {
+async function getUser(req, res) {
   try {
     res.json(await userService.getAll());
   } catch (err) {
-    console.error('Error while getting user', err.message);
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 }
 
@@ -23,7 +22,6 @@ async function register(req, res) {
       res.json({ message: err.message });
       return;
     }
-
     res.status(500).json({ message: err.message });
   }
 }
@@ -47,16 +45,15 @@ async function login(req, res) {
   }
 }
 
-async function me(req, res, next) {
+async function me(req, res) {
   try {
     res.json(await userService.me(req.uuid));
   } catch (err) {
-    console.error('Error while login user', err.message);
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 }
 
-async function refresh(req, res, next) {
+async function refresh(req, res) {
   if (req.body.refreshToken === undefined) {
     res.status(400);
     res.json({ message: 'refreshToken not provided' });
@@ -71,8 +68,7 @@ async function refresh(req, res, next) {
       return;
     }
 
-    console.error('Error while login user', err.message);
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 }
 module.exports = {
