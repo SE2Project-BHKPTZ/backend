@@ -2,19 +2,16 @@ const jwt = require('jsonwebtoken');
 
 exports.authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (token == null) {
+  if (authHeader == null || authHeader.split(' ')[1] === undefined) {
     res.sendStatus(401);
     return;
   }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, uuid) => {
+  jwt.verify(authHeader.split(' ')[1], process.env.ACCESS_TOKEN_SECRET, (err, data) => {
     if (err) {
       res.sendStatus(403);
       return;
     }
-    req.uuid = uuid;
+    req.uuid = data.uuid;
 
     next();
   });

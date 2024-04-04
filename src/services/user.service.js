@@ -10,7 +10,7 @@ exports.getAll = async () => User.find({});
 
 exports.register = async (username, password) => new Promise((resolve, reject) => {
   getByUsername(username).then(async (fetchedUser) => {
-    if (fetchedUser != null) reject(new Error('User allready exists'));
+    if (fetchedUser != null) reject(new Error('User already exists'));
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
