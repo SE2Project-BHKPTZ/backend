@@ -37,24 +37,29 @@ const lobbies = {};
 app.post('/create-lobby', (req, res) => {
   const lobbyId = req.body.lobbyId;
   const name = req.body.name;
+
+  if (!lobbyId || !name) {
+    return res.status(400).json({ error: 'Lobby ID and name are required' });
+  }
+
+  if (lobbies[lobbyId]) {
+    return res.status(400).json({ error: 'A lobby with this ID already exists' });
+  }
+
   const lobby = new Lobby(lobbyId, name);
   lobbies[lobbyId] = lobby;
   res.json({ lobbyId: lobby.lobbyId });
 });
 
-   app.post('/join-lobby', (req, res) => {
-  const lobbyId = req.body.lobbyId;
-  const player = new Player(req.body.uuid, req.body.socketId);
-  const lobby = lobbies[lobbyId];
-  if (lobby && lobby.addPlayer(player)) {
-    res.json({ success: true });
-  } else {
-    res.json({ success: false, message: 'Lobby is full or does not exist' });
-  }
-});
-
 io.on('connection', (socket) => {
   socket.on('join-room', (lobbyId) => {
+    const lobby = lobbies[lobbyId];
+    if (!lobby) {
+      return socket.emit('error', 'Lobby does not exist');
+    }
+    if (lobby.players.length >= 6) {
+      return socket.emit('error', 'Lobby is full');
+    }
     socket.join(lobbyId);
   });
 
@@ -62,16 +67,17 @@ io.on('connection', (socket) => {
     io.to(lobbyId).emit('message', message);
   });
 
- socket.on('disconnect', () => {
-   for (const lobbyId in lobbies) {
-     const lobby = lobbies[lobbyId];
-     const playerIndex = lobby.players.findIndex(player => player.socketId === socket.id);
-     if (playerIndex !== -1) {
-       lobby.players.splice(playerIndex, 1);
-       break;
-     }
-   }
- });
+  socket.on('disconnect', () => {
+    for (const lobbyId in lobbies) {
+      const lobby = lobbies[lobbyId];
+      const playerIndex = lobby.players.findIndex(player => player.socketId === socket.id);
+      if (playerIndex !== -1) {
+        lobby.players.splice(playerIndex, 1);
+        break;
+      }
+    }
+  });
+});
 
 server.listen(3000, () => {
   console.log('Server is running on port 3000');
