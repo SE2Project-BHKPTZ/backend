@@ -7,6 +7,7 @@ const socketio = require('socket.io');
 const { instrument } = require('@socket.io/admin-ui');
 const mongoose = require('mongoose');
 const userRouter = require('./src/routes/user.route');
+const lobbyRouter = require('./src/routes/lobby.route');
 
 if (process.env.PORT === undefined
   || process.env.MONGO_HOST === undefined
@@ -33,6 +34,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/users', userRouter);
+
+app.use('/lobby', lobbyRouter);
 
 const server = http.createServer(app);
 
