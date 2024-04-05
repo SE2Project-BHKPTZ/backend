@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 
-const getByUsername = async (username) => User.findOne({ username });
+const getByUsername = async (username) => User.findOne({ username: username.toString() });
 const getByUUID = async (uuid) => User.findOne({ uuid });
 
 exports.getAll = async () => User.find({});
