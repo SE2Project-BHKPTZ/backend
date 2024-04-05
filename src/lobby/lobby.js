@@ -32,4 +32,22 @@ class Lobby {
     return false;
   }
 }
+const lobbies = {};
 
+app.post('/create-lobby', (req, res) => {
+  const lobbyId = req.body.lobbyId;
+  const name = req.body.name;
+  const lobby = new Lobby(lobbyId, name);
+  lobbies[lobbyId] = lobby;
+  res.json({ lobbyId: lobby.lobbyId });
+});
+
+app.post('/join-lobby', (req, res) => {
+  const lobbyId = req.body.lobbyId;
+  const player = new Player(req.body.uuid, req.body.socketId);
+  if (lobbies[lobbyId].addPlayer(player)) {
+    res.json({ status: 'success' });
+  } else {
+    res.json({ status: 'failed' });
+  }
+});
