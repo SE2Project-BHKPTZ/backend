@@ -74,7 +74,9 @@ describe('Post /users/register', () => {
       username: undefined,
       password: 'test',
     });
+
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Username or password undefined' }));
   });
   test('should have username in the request body', async () => {
     const response = await request(app).post('/users/register').send({
@@ -82,6 +84,7 @@ describe('Post /users/register', () => {
       password: undefined,
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Username or password undefined' }));
   });
   test('should return User exists error', async () => {
     userService.register.mockImplementation(() => {
@@ -92,6 +95,7 @@ describe('Post /users/register', () => {
       password: 'test',
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'User already exists' }));
   });
   test('should respond with a 500 status code', async () => {
     userService.register.mockImplementation(() => {
@@ -123,6 +127,7 @@ describe('Post /users/login', () => {
       password: 'test',
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Username or password undefined' }));
   });
   test('should have username in the request body', async () => {
     const response = await request(app).post('/users/login').send({
@@ -130,6 +135,7 @@ describe('Post /users/login', () => {
       password: undefined,
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Username or password undefined' }));
   });
   test('should return User does not exist error', async () => {
     userService.login.mockImplementation(() => {
@@ -140,6 +146,7 @@ describe('Post /users/login', () => {
       password: 'test',
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'User does not exist' }));
   });
   test('should return Invalid password error', async () => {
     userService.login.mockImplementation(() => {
@@ -150,6 +157,7 @@ describe('Post /users/login', () => {
       password: 'test',
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Invalid password' }));
   });
   test('should respond with a 500 status code', async () => {
     userService.login.mockImplementation(() => {
@@ -195,6 +203,7 @@ describe('Post /users/refresh', () => {
   test('should respond with a 400 status code', async () => {
     const response = await request(app).post('/users/refresh').send();
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'refreshToken not provided' }));
   });
   test('should respond with a 400 Invalid refreshToken status code', async () => {
     userService.refresh.mockImplementation(() => {
@@ -204,6 +213,7 @@ describe('Post /users/refresh', () => {
       refreshToken: 'refreshToken',
     });
     expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Invalid refreshToken' }));
   });
   test('should respond with a 500 status code', async () => {
     userService.refresh.mockImplementation(() => {

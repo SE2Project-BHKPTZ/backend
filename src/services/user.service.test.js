@@ -19,11 +19,11 @@ jest.mock('jsonwebtoken', () => ({
 jest.mock('../models/user.model', () => jest.fn().mockImplementation(() => ({
   save: jest.fn(),
 })));
+process.env.ACCESS_TOKEN_TTL = '2h';
 
 describe('Function register', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.ACCESS_TOKEN_TTL = '2h';
   });
 
   it('registers a new user successfully', async () => {

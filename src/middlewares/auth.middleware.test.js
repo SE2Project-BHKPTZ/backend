@@ -2,19 +2,17 @@ const jwt = require('jsonwebtoken');
 const { authenticateToken } = require('./auth.middleware');
 
 describe('authenticateToken middleware', () => {
-  let req; let res; let
-    next;
-
+  const req = {
+    headers: {
+      authorization: null,
+    },
+  };
+  const res = {
+    sendStatus: jest.fn(),
+  };
+  const next = jest.fn();
   beforeEach(() => {
-    req = {
-      headers: {
-        authorization: null,
-      },
-    };
-    res = {
-      sendStatus: jest.fn(),
-    };
-    next = jest.fn();
+    jest.clearAllMocks();
   });
 
   it('should send 401 status if authorization header is missing', () => {
@@ -24,7 +22,20 @@ describe('authenticateToken middleware', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should send 401 status if token is invalid', () => {
+  it('should send 401 status if token is not formated correct', () => {
+    req.headers.authorization = 'Bearer';
+
+    jest.spyOn(jwt, 'verify').mockImplementation((token, secret, callback) => {
+      callback('err');
+    });
+
+    authenticateToken(req, res, next);
+
+    expect(res.sendStatus).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should send 403 status if token is invalid', () => {
     req.headers.authorization = 'Bearer invalidtoken';
 
     jest.spyOn(jwt, 'verify').mockImplementation((token, secret, callback) => {
