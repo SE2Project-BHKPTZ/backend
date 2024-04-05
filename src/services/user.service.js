@@ -35,7 +35,7 @@ exports.register = async (username, password) => new Promise((resolve, reject) =
 
     resolve({ accessToken, refreshToken, expires_in: process.env.ACCESS_TOKEN_TTL });
   }).catch((err) => {
-    reject(err);
+    reject(new Error(err));
   });
 });
 
