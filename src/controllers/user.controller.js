@@ -14,7 +14,9 @@ async function register(req, res) {
     return;
   }
   try {
-    res.json(await userService.register(req.body.username, req.body.password));
+    res.json(
+      await userService.register(req.body.username.toString(), req.body.password.toString()),
+    );
   } catch (err) {
     if (err.message === 'User already exists') {
       res.status(400).json({ message: err.message });
