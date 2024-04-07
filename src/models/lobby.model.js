@@ -11,7 +11,7 @@ const lobbySchema = new mongoose.Schema({
   },
   players: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Player'
+    ref: 'Player',
   }],
 });
 
