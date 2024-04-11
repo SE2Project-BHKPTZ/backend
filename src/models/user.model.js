@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  websocket: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model('User', userSchema);
