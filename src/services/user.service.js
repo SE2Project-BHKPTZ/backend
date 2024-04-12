@@ -5,7 +5,7 @@ const User = require('../models/user.model');
 
 const getByUsername = async (username) => User.findOne({ username: username.toString() });
 const getByUUID = async (uuid) => User.findOne({ uuid });
-
+exports.getByUUID = getByUUID;
 exports.getAll = async () => User.find({});
 
 exports.register = async (username, password) => new Promise((resolve, reject) => {
@@ -90,4 +90,13 @@ exports.refresh = async (refreshToken) => new Promise((resolve, reject) => {
     { expiresIn: process.env.ACCESS_TOKEN_TTL },
   );
   resolve({ accessToken });
+});
+
+exports.setWebsocket = async (uuid, socketID) => new Promise((resolve, reject) => {
+  getByUUID(uuid).then((user) => {
+    user.websocket = socketID;
+    user.save();
+  }).catch((err) => {
+    reject(new Error(err));
+  });
 });

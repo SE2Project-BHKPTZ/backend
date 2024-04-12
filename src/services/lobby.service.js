@@ -1,5 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const Lobby = require('../models/lobby.model');
+const socketService = require('./socket.service');
+const userService = require('./user.service');
 
 const getRandomString = (len) => {
   const arr = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -35,7 +37,11 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
         });
         lobby.save().then((result, err) => {
           if (err) reject(new Error(err));
-          resolve(result.lobbyid);
+          userService.getByUUID(playerUUID).then((user) => {
+            socketService.joinRoom(result.lobbyid, user.websocket);
+
+            resolve(result.lobbyid);
+          });
         });
       }
     });
@@ -59,7 +65,11 @@ exports.join = async (lobbyID, playerUUID) => new Promise(
         }
         lobby.players.push(playerUUID);
         lobby.save().then(() => {
-          resolve('lobby joined successfull');
+          userService.getByUUID(playerUUID).then((user) => {
+            socketService.joinRoom(lobbyID, user.websocket);
+
+            resolve('lobby joined successfull');
+          });
         });
       });
     });
