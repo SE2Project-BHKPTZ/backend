@@ -35,7 +35,7 @@ async function createLobby(req, res) {
     res.status(400).json({ message: 'isPublic invalid' });
     return;
   }
-  if (req.body.maxPlayers === undefined || !(typeof req.body.maxPlayers === 'number')) {
+  if (req.body.maxPlayers === undefined || typeof req.body.maxPlayers !== 'number') {
     res.status(400).json({ message: 'maxPlayers invalid or undefined' });
     return;
   }
@@ -60,7 +60,6 @@ async function createLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
-
 async function joinLobby(req, res) {
   if (req.body.lobbyID === undefined) {
     res.status(400).json({ message: 'lobbyID undefined' });
@@ -77,7 +76,6 @@ async function joinLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
-
 async function leaveLobby(req, res) {
   if (req.query.uuid === undefined) {
     res.status(400).json({ message: 'uuid undefined' });

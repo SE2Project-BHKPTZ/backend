@@ -8,17 +8,16 @@ const getRandomString = (len) => {
   let ans = '';
   for (let i = len; i > 0; i -= 1) {
     ans
-      += arr[(Math.floor(Math.random() * arr.length))];
+      += arr[(Math.floor(Math.random() * arr.length))]; // NOSONAR not used in secure contexts
   }
   return ans;
 };
 
-// const getByUUID = async (uuid) => Lobby.findOne({ uuid });
 const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ players: uuid });
 exports.getAll = async () => Lobby.find({});
-exports.delete = async (uuid) => Lobby.deleteOne({ uuid }).then(((data) => {
+exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then(((data) => {
   if (data.deletedCount === 0) {
     throw Error('Lobby not found');
   }
@@ -70,9 +69,9 @@ exports.join = async (lobbyID, playerUUID) => new Promise(
         }
         lobby.players.push(playerUUID);
         lobby.save().then(() => {
-          userService.getByUUID(playerUUID).then((user) => {
+          userService.getByUUID(playerUUID).then(async (user) => {
             try {
-              socketService.joinRoom(lobbyID, user.websocket);
+              await socketService.joinRoom(lobbyID, user.websocket);
             } catch (error) {
               reject(new Error('User Websocket not connceted'));
               return;
@@ -95,9 +94,9 @@ exports.leave = async (playerUUID) => new Promise(
 
       lobby.players.splice(lobby.players.indexOf(playerUUID), 1);
       lobby.save().then(() => {
-        userService.getByUUID(playerUUID).then((user) => {
+        userService.getByUUID(playerUUID).then(async (user) => {
           try {
-            socketService.leaveRoom(lobby.lobbyid, user.websocket);
+            await socketService.leaveRoom(lobby.lobbyid, user.websocket);
           } catch (error) {
             reject(new Error('User Websocket not connceted'));
           }
