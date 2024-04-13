@@ -13,7 +13,7 @@ async function deleteLobby(req, res) {
     return;
   }
   try {
-    res.json(await lobbyService.delete(req.query.uuid));
+    res.json(await lobbyService.delete(req.query.uuid.toString()));
   } catch (err) {
     if (err.message === 'Lobby not found') {
       res.status(400).json({ message: err.message });
