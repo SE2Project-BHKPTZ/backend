@@ -18,7 +18,12 @@ const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ players: uuid });
 exports.getAll = async () => Lobby.find({});
-exports.delete = async (uuid) => Lobby.deleteOne({ uuid });
+exports.delete = async (uuid) => Lobby.deleteOne({ uuid }).then(((data) => {
+  if (data.deletedCount === 0) {
+    throw Error('Lobby not found');
+  }
+  return 'delete successfull';
+}));
 exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then((data) => {
@@ -66,7 +71,12 @@ exports.join = async (lobbyID, playerUUID) => new Promise(
         lobby.players.push(playerUUID);
         lobby.save().then(() => {
           userService.getByUUID(playerUUID).then((user) => {
-            socketService.joinRoom(lobbyID, user.websocket);
+            try {
+              socketService.joinRoom(lobbyID, user.websocket);
+            } catch (error) {
+              reject(new Error('User Websocket not connceted'));
+              return;
+            }
 
             resolve('lobby joined successfull');
           });
@@ -85,8 +95,20 @@ exports.leave = async (playerUUID) => new Promise(
 
       lobby.players.splice(lobby.players.indexOf(playerUUID), 1);
       lobby.save().then(() => {
-        resolve('lobby left successfull');
+        userService.getByUUID(playerUUID).then((user) => {
+          try {
+            socketService.leaveRoom(lobby.lobbyid, user.websocket);
+          } catch (error) {
+            reject(new Error('User Websocket not connceted'));
+          }
+          resolve('lobby left successfull');
+        });
       });
     });
   },
 );
+
+exports.exportedForTesting = {
+  getRandomString,
+
+};

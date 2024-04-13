@@ -3,6 +3,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{js,jsx}',
     '!src/models/**',
+    '!src/socketHandler/websocket.js',
     '!**/node_modules/**',
     '!**/vendor/**',
     '!**/coverage/**',

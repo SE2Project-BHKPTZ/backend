@@ -5,7 +5,7 @@ const User = require('../models/user.model');
 
 const getByUsername = async (username) => User.findOne({ username: username.toString() });
 const getByUUID = async (uuid) => User.findOne({ uuid });
-exports.getByUUID = getByUUID;
+exports.getByUUID = async (uuid) => User.findOne({ uuid });
 exports.getAll = async () => User.find({});
 
 exports.register = async (username, password) => new Promise((resolve, reject) => {
@@ -96,6 +96,7 @@ exports.setWebsocket = async (uuid, socketID) => new Promise((resolve, reject) =
   getByUUID(uuid).then((user) => {
     user.websocket = socketID;
     user.save();
+    resolve('websocket set');
   }).catch((err) => {
     reject(new Error(err));
   });

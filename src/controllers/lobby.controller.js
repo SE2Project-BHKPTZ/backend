@@ -8,9 +8,17 @@ async function getLobby(req, res) {
   }
 }
 async function deleteLobby(req, res) {
+  if (req.query.uuid === undefined) {
+    res.status(400).json({ message: 'uuid undefined' });
+    return;
+  }
   try {
     res.json(await lobbyService.delete(req.query.uuid));
   } catch (err) {
+    if (err.message === 'Lobby not found') {
+      res.status(400).json({ message: err.message });
+      return;
+    }
     res.status(500).json({ message: err.message });
   }
 }
@@ -27,7 +35,7 @@ async function createLobby(req, res) {
     res.status(400).json({ message: 'isPublic invalid' });
     return;
   }
-  if (req.body.maxPlayers === undefined || Number.isNaN(req.body.maxPlayers)) {
+  if (req.body.maxPlayers === undefined || !(typeof req.body.maxPlayers === 'number')) {
     res.status(400).json({ message: 'maxPlayers invalid or undefined' });
     return;
   }
@@ -71,6 +79,10 @@ async function joinLobby(req, res) {
 }
 
 async function leaveLobby(req, res) {
+  if (req.query.uuid === undefined) {
+    res.status(400).json({ message: 'uuid undefined' });
+    return;
+  }
   try {
     res.json(await lobbyService.leave(req.uuid));
   } catch (err) {
