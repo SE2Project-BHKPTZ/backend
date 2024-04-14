@@ -15,7 +15,6 @@ const getRandomString = async (len) => {
       += arr[(Math.floor(Math.random() * arr.length))]; // NOSONAR not used in secure contexts
     }
   } while (await getByLobbyID(ans) != null);
-  console.log();
 
   return ans;
 };
