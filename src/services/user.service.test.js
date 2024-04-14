@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const {
   register, login, me, refresh,
+  setWebsocket,
 } = require('./user.service');
 
 jest.mock('bcryptjs', () => ({
@@ -223,5 +224,15 @@ describe('Function refresh', () => {
 
     await expect(refresh(mockRefreshToken)).rejects.toThrow('Invalid refreshToken');
     expect(jwt.sign).not.toHaveBeenCalled();
+  });
+});
+describe('Function setWebSocket', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('rejects on error', async () => {
+    User.findOne = jest.fn().mockRejectedValue('error');
+    await expect(setWebsocket('uuid', 'socketID')).rejects.toThrow('error');
   });
 });

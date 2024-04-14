@@ -18,6 +18,8 @@
   "rules": {
     "no-console": [
       "off"
-    ]
+    ],
+    "no-param-reassign": ["error", { "props": false }],
+    "no-await-in-loop": "off"
   }
 }
