@@ -3,17 +3,22 @@ const Lobby = require('../models/lobby.model');
 const socketService = require('./socket.service');
 const userService = require('./user.service');
 
-const getRandomString = (len) => {
+const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
+
+const getRandomString = async (len) => {
   const arr = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let ans = '';
-  for (let i = len; i > 0; i -= 1) {
-    ans
+  do {
+    ans = '';
+    for (let i = len; i > 0; i -= 1) {
+      ans
       += arr[(Math.floor(Math.random() * arr.length))]; // NOSONAR not used in secure contexts
-  }
+    }
+  } while (await getByLobbyID(ans) != null);
+  console.log();
+
   return ans;
 };
-
-const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ players: uuid });
 exports.getAll = async () => Lobby.find({});
@@ -25,13 +30,13 @@ exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then
 }));
 exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
   (resolve, reject) => {
-    isPlayerInLobby(playerUUID).then((data) => {
+    isPlayerInLobby(playerUUID).then(async (data) => {
       if (data != null) {
         reject(new Error('Player is already in an lobby'));
       } else {
         const lobby = new Lobby({
           uuid: uuidv4(),
-          lobbyid: getRandomString(6),
+          lobbyid: await getRandomString(6),
           status: 'CREATED',
           name,
           players: [playerUUID],
@@ -41,8 +46,13 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
         });
         lobby.save().then((result, err) => {
           if (err) reject(new Error(err));
-          userService.getByUUID(playerUUID).then((user) => {
-            socketService.joinRoom(result.lobbyid, user.websocket);
+          userService.getByUUID(playerUUID).then(async (user) => {
+            try {
+              await socketService.joinRoom(result.lobbyid, user.websocket);
+            } catch (error) {
+              reject(new Error('User Websocket not connceted'));
+              return;
+            }
 
             resolve(result.lobbyid);
           });
@@ -109,5 +119,4 @@ exports.leave = async (playerUUID) => new Promise(
 
 exports.exportedForTesting = {
   getRandomString,
-
 };

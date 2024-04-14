@@ -16,16 +16,16 @@ jest.mock('./user.service');
 jest.mock('./socket.service');
 
 describe('Function getRandomString', () => {
-  it('should return a string of the specified length', () => {
+  it('should return a string of the specified length', async () => {
     const len = 10;
-    const result = getRandomString(len);
+    const result = await getRandomString(len);
     expect(result).toHaveLength(len);
     expect(typeof result).toBe('string');
   });
 
-  it('should only contain characters from the specified range', () => {
+  it('should only contain characters from the specified range', async () => {
     const len = 10;
-    const result = getRandomString(len);
+    const result = await getRandomString(len);
     const validChars = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     for (let i = 0; i < result.length; i += 1) {
@@ -33,13 +33,13 @@ describe('Function getRandomString', () => {
     }
   });
 
-  it('should return an empty string if length is 0', () => {
-    const result = getRandomString(0);
+  it('should return an empty string if length is 0', async () => {
+    const result = await getRandomString(0);
     expect(result).toBe('');
   });
 
-  it('should return an empty string if length is negative', () => {
-    const result = getRandomString(-1);
+  it('should return an empty string if length is negative', async () => {
+    const result = await getRandomString(-1);
     expect(result).toBe('');
   });
 });
