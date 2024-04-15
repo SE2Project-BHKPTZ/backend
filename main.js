@@ -5,13 +5,12 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const mongoose = require('mongoose');
+const swaggerUI = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const userRouter = require('./src/routes/user.route');
 const lobbyRouter = require('./src/routes/lobby.route');
+
 const app = express();
-
-const swaggerUI = require('swagger-ui-express');
-
-const swaggerSpec = require('./swagger');
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 

@@ -6,8 +6,8 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
- * components: 
- *    schemas: 
+ * components:
+ *    schemas:
  *       Lobby: 
  *           type: object
  *           required:
@@ -17,16 +17,16 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *             - name
  *             - players
  *           properties: 
- *             uuid: 
+ *             uuid:
  *               type: string
  *               description: The unique user ID
- *             lobbyid: 
+ *             lobbyid:
  *               type: string
  *               description: The unique lobby ID
- *             status: 
+ *             status:
  *               type: string
  *               description: The lobby status
- *             name: 
+ *             name:
  *               type: string
  *               description: The lobby name
  *             timestamp: 
