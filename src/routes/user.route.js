@@ -6,49 +6,49 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
- * components: 
- *  schemas: 
- *   User: 
+ * components:
+ *  schemas:
+ *   User:
  *    type: object
- *    required: 
+ *    required:
  *     - username
  *     - password
  *     - uuid
  *     - registerTimestamp
  *     - playedGames
- *    properties: 
- *     username: 
+ *    properties:
+ *     username:
  *      type: string
  *      description: The player´s username
- *     password: 
+ *     password:
  *      type: string
  *      description: The user account password
- *     uuid: 
+ *     uuid:
  *      type: string
  *      description: The auto-generated Unique User ID
- *     registerTimestamp: 
+ *     registerTimestamp:
  *      type: date
  *      description: The registration timestamp
- *     playedGames: 
+ *     playedGames:
  *      type: array
  *      items:
  *        type: string
  *      description: The array of the played games
- *     websocket: 
+ *     websocket:
  *      type: string
  *      description: The connection websocket
- *    example: 
+ *    example:
  *     username: "BestPlayerEver"
  *     password: "TopSecret&%22?"
  *     uuid: "9937525"
  *     registerTimestamp: "2024-04-17T12:30:45.123Z"
  *     playedGames: ["9994", "2323", "1111"]
  *     websocket: "ws://example.com/socket"
- * 
+ *
  */
 /**
  * @swagger
- * tags: 
+ * tags:
  *  name: Users
  *  description: The users' managing API
  */

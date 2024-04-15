@@ -10,10 +10,6 @@ const swaggerSpec = require('./swagger');
 const userRouter = require('./src/routes/user.route');
 const lobbyRouter = require('./src/routes/lobby.route');
 
-const app = express();
-
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
 if (process.env.PORT === undefined
   || process.env.MONGO_HOST === undefined
   || process.env.MONGO_INITDB_ROOT_USERNAME === undefined
@@ -31,6 +27,8 @@ mongoose
   .then(() => console.log('MongoDB Connected'))
   .catch((err) => console.log(err));
 
+const app = express();
+
 app.use(cors());
 
 app.use(bodyParser.json());
@@ -38,6 +36,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/users', userRouter);
 app.use('/lobbys', lobbyRouter);
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 const server = http.createServer(app);
 

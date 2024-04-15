@@ -8,7 +8,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  * @swagger
  * components:
  *    schemas:
- *       Lobby: 
+ *       Lobby:
  *           type: object
  *           required:
  *             - uuid
@@ -16,7 +16,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *             - status
  *             - name
  *             - players
- *           properties: 
+ *           properties:
  *             uuid:
  *               type: string
  *               description: The unique user ID
@@ -29,22 +29,22 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *             name:
  *               type: string
  *               description: The lobby name
- *             timestamp: 
+ *             timestamp:
  *               type: date
  *               description: The lobby creation timestamp
- *             players: 
+ *             players:
  *               type: [string]
  *               description: The player´s usernames array
- *             maxPlayers: 
+ *             maxPlayers:
  *               type: number
  *               description: The max number of players for the lobby (3, 4 or 6)
- *             results: 
+ *             results:
  *               type: [object]
  *               description: The array of score objects of the players
- *             isPublic: 
+ *             isPublic:
  *               type: boolean
  *               desciption: Identifies if the lobby is public or private
- *           example: 
+ *           example:
  *             uuid: "1"
  *             lobbyid: "1"
  *             status: "full"
@@ -58,7 +58,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  */
 /**
  * @swagger
- * tags: 
+ * tags:
  *  name: Lobbys
  *  description: The lobbys' managing API
  */
@@ -71,20 +71,20 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *     responses:
  *       200:
  *         description: Successful operation. All lobbys data was retrieved
- *         content: 
+ *         content:
  *           application/json:
- *             schema: 
+ *             schema:
  *               type: array
- *               items: 
+ *               items:
  *                 $ref: '#/components/schemas/Lobby'
- *       500: 
+ *       500:
  *         description: Internal Server Error. Unable to retrieve lobby data
- *         content: 
- *           application/json: 
- *             schema: 
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
- *               properties: 
- *                 message: 
+ *               properties:
+ *                 message:
  *                   type: string
  */
 router.get('/', lobbyController.getLobby);
