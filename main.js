@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -11,10 +10,10 @@ const lobbyRouter = require('./src/routes/lobby.route');
 const app = express();
 
 const swaggerUI = require('swagger-ui-express');
+
 const swaggerSpec = require('./swagger');
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
 
 if (process.env.PORT === undefined
   || process.env.MONGO_HOST === undefined
@@ -25,7 +24,6 @@ if (process.env.PORT === undefined
   process.exit(1);
 }
 
-
 mongoose
   .connect(`mongodb://${process.env.MONGO_HOST}:27017/wizard?authSource=admin`, {
     user: process.env.MONGO_INITDB_ROOT_USERNAME,
@@ -33,8 +31,6 @@ mongoose
   })
   .then(() => console.log('MongoDB Connected'))
   .catch((err) => console.log(err));
-
-
 
 app.use(cors());
 

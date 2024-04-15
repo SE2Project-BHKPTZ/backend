@@ -56,14 +56,12 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *           isPublic: true
 
  */
-
 /**
  * @swagger
  * tags: 
  *  name: Lobbys
  *  description: The lobbys' managing API
  */
-
 /**
  * @swagger
  * /lobbys:
@@ -89,9 +87,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *                 message: 
  *                   type: string
  */
-
 router.get('/', lobbyController.getLobby);
-
 /**
  * @swagger
  * /lobbys:
@@ -144,10 +140,7 @@ router.get('/', lobbyController.getLobby);
  *                 message:
  *                   type: string
  */
- 
-
 router.delete('/', authMiddleware.authenticateToken, lobbyController.deleteLobby);
-
 /**
  * @swagger
  * /lobbys:
@@ -211,7 +204,6 @@ router.delete('/', authMiddleware.authenticateToken, lobbyController.deleteLobby
  *                   description: Server internal error message.
  */
 router.post('/', authMiddleware.authenticateToken, lobbyController.createLobby);
-
 /**
  * @swagger
  * /lobbys/join:
@@ -267,7 +259,6 @@ router.post('/', authMiddleware.authenticateToken, lobbyController.createLobby);
  *                   description: Error message for the internal server error.
  */
 router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby);
-
 /**
  * @swagger
  * /lobbys/leave:
@@ -322,10 +313,6 @@ router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby
  *                   type: string
  *                   description: Error message for the internal server error.
  */
+router.get('/leave', authMiddleware.authenticateToken, lobbyController.leaveLobby);
 
- router.get('/leave', authMiddleware.authenticateToken, lobbyController.leaveLobby);
-
-
-
-
-module.exports = router;
+ module.exports = router;

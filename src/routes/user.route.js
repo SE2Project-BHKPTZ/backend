@@ -4,7 +4,6 @@ const router = express.Router();
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
-
 /**
  * @swagger
  * components: 
@@ -47,14 +46,12 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *     websocket: "ws://example.com/socket"
  * 
  */
-
 /**
  * @swagger
  * tags: 
  *  name: Users
  *  description: The users' managing API
  */
-
 /**
  * @swagger
  * /users:
@@ -80,10 +77,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *                 message:
  *                   type: string
  */
-
-
 router.get('/', userController.getUser);
-
 /**
  * @swagger
  * /users/register:
@@ -152,7 +146,6 @@ router.get('/', userController.getUser);
  *                   description: Error message for the internal server error.
  */
 router.post('/register', userController.register);
-
 /**
  * @swagger
  * /users/login:
@@ -222,7 +215,6 @@ router.post('/register', userController.register);
  */
 
 router.post('/login', userController.login);
-
 /**
  * @swagger
  * /users/me:
@@ -281,7 +273,6 @@ router.post('/login', userController.login);
  */
 
 router.get('/me', authMiddleware.authenticateToken, userController.me);
-
 /**
  * @swagger
  * /users/refresh:
@@ -342,6 +333,6 @@ router.get('/me', authMiddleware.authenticateToken, userController.me);
  *                   type: string
  *                   description: Error message for the internal server error.
  */
-
 router.post('/refresh', userController.refresh);
+
 module.exports = router;
