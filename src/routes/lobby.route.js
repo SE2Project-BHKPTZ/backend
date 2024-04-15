@@ -315,4 +315,4 @@ router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby
  */
 router.get('/leave', authMiddleware.authenticateToken, lobbyController.leaveLobby);
 
- module.exports = router;
+module.exports = router;

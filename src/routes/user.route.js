@@ -321,7 +321,7 @@ router.get('/me', authMiddleware.authenticateToken, userController.me);
  *               properties:
  *                 message:
  *                   type: string
- *                   description: Error message indicating that the provided refresh token is invalid.
+ *                   description: Error message indicating the provided refresh token as invalid.
  *       500:
  *         description: Internal Server Error. Failed to refresh access token.
  *         content:
