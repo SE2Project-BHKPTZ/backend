@@ -7,11 +7,6 @@ const swaggerDefinition = {
     version: '1.0.0',
     description: 'Wizard Board Game API',
   },
-  servers: [
-    {
-      url: 'http://${req.hostname}:${process.env.PORT}',
-    },
-  ],
 };
 
 const options = {
