@@ -36,14 +36,14 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *      description: The array of the played games
  *     websocket:
  *      type: string
- *      description: The connection websocket
+ *      description: The connection websocket ID
  *    example:
  *     username: "BestPlayerEver"
  *     password: "TopSecret&%22?"
  *     uuid: "9937525"
  *     registerTimestamp: "2024-04-17T12:30:45.123Z"
  *     playedGames: ["9994", "2323", "1111"]
- *     websocket: "ws://example.com/socket"
+ *     websocket: "123"
  *
  */
 /**
