@@ -37,7 +37,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *               description: The player´s usernames array
  *             maxPlayers:
  *               type: number
- *               description: The max number of players for the lobby (3, 4 or 6)
+ *               description: The max number of players for the lobby (3, 4, 5 or 6)
  *             results:
  *               type: [object]
  *               description: The array of score objects of the players
