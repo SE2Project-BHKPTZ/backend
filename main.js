@@ -1,9 +1,12 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const mongoose = require('mongoose');
+const swaggerUI = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const userRouter = require('./src/routes/user.route');
 const lobbyRouter = require('./src/routes/lobby.route');
 
@@ -33,6 +36,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/users', userRouter);
 app.use('/lobbys', lobbyRouter);
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 const server = http.createServer(app);
 
