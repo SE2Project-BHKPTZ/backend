@@ -1,34 +1,34 @@
-class Deck {
-    constructor(suits) {
-        //const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
-        if(suits.length != 4)
-            throw new Error('Count of suits must be 4')
+const Card = require('./card.model');
 
+class Deck {
+    constructor() {
+        let suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+        this.cards = []
         for (let suit of suits) {
             for (let value = 0; value <= 14; value++) {
-                cards.push(new Card(suit, value));
+                this.cards.push(new Card(suit, value))
             }
         }
     }
 
-
     shuffle() {
-        for (let i = this.cards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+        let currentIndex = this.cards.length;
+
+        while (currentIndex != 0) {
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            [this.cards[currentIndex], this.cards[randomIndex]] = [
+                this.cards[randomIndex], this.cards[currentIndex]];
         }
     }
 
     deal(round, playerNumber) {
         const hands = [];
-
-        if(round < 1 || rount > 20)
-            throw new Error("the count of rounds must be between 1 and 20")
-
         for (let i = 0; i < playerNumber; i++) {
-            hands.push([]); 
-            for (let i = 1; i <= round; i++) {
-                hands[j].push(this.drawCard());
+            hands.push([])
+            for (let j = 1; j <= round; j++) {
+                hands[i].push(this.drawCard())
             }
         }
 
@@ -37,8 +37,10 @@ class Deck {
 
     drawCard() {
         if (this.cards.length === 0)
-            throw new Error("No cards left in the deck");
-        
-        return this.cards.pop();
+            throw new Error("No cards left in the deck")
+
+        return this.cards.pop()
     }
 }
+
+module.exports = Deck;
