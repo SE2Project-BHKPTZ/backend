@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Card = require('./card.model');
 
 class Deck {
@@ -15,7 +16,10 @@ class Deck {
     let currentIndex = this.cards.length;
 
     while (currentIndex !== 0) {
-      const randomIndex = Math.floor(Math.random() * currentIndex);
+      const randomBuffer = new Uint32Array(1);
+      crypto.getRandomValues(randomBuffer);
+      const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+      const randomIndex = Math.floor(randomNumber * (60));
       currentIndex -= 1;
 
       [this.cards[currentIndex], this.cards[randomIndex]] = [
