@@ -2,11 +2,11 @@ const Card = require('./card.model');
 
 class Deck {
   constructor() {
-    let suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
-    this.cards = []
+    const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+    this.cards = [];
     for (let suit of suits) {
       for (let value = 0; value <= 14; value++) {
-        this.cards.push(new Card(suit, value))
+        this.cards.push(new Card(suit, value));
       }
     }
   }
@@ -26,9 +26,9 @@ class Deck {
   deal(round, playerNumber) {
     const hands = [];
     for (let i = 0; i < playerNumber; i++) {
-      hands.push([])
+      hands.push([]);
       for (let j = 1; j <= round; j++) {
-        hands[i].push(this.drawCard())
+        hands[i].push(this.drawCard());
       }
     }
 
@@ -37,9 +37,9 @@ class Deck {
 
   drawCard() {
     if (this.cards.length === 0)
-      throw new Error("No cards left in the deck")
+      throw new Error("No cards left in the deck");
 
-    return this.cards.pop()
+    return this.cards.pop();
   }
 }
 
