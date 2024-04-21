@@ -37,12 +37,9 @@ exports.getWinningCard = (cards, trump) => {
   for (let i = 1; i < cards.length; i += 1) {
     if (cards[i].isWizard()) { return cards[i]; }
 
-    if (cards[i].isTrump(trump) && !winningCard.isTrump(trump)) {
-      winningCard = cards[i];
-    } else if (
-      cards[i].suit === winningCard.suit
-      && cards[i].value > winningCard.value
-    ) {
+    if ((cards[i].isTrump(trump) && !winningCard.isTrump(trump))
+      || (cards[i].suit === winningCard.suit
+        && cards[i].value > winningCard.value)) {
       winningCard = cards[i];
     }
   }
