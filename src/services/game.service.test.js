@@ -4,7 +4,7 @@ const {
   exportedForTesting,
 } = require('./game.service');
 
-const Card = require('../models/card.model');
+const Card = require('../utils/card.model');
 
 const { isLastRound } = exportedForTesting;
 

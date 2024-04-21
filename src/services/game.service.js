@@ -1,4 +1,4 @@
-const Deck = require('../models/deck.model');
+const Deck = require('../utils/deck.model');
 
 const isLastRound = (round, playerCount) => {
   switch (playerCount) {
