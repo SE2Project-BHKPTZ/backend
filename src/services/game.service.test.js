@@ -103,47 +103,47 @@ describe('startRound', () => {
 
 describe('getWinningCard', () => {
   test('should return wizard card at the 1st position', () => {
-    const cards = []
-    cards.push(new Card("Hearts", 14))
+    const cards = [];
+    cards.push(new Card('Hearts', 14));
     const trump = 'Hearts';
     expect(getWinningCard(cards, trump)).toEqual(cards[0]);
   });
 
   test('should return wizard card at the 2nd position', () => {
-    const cards = []
-    cards.push(new Card("Hearts", 7))
-    cards.push(new Card("Hearts", 14))
-    cards.push(new Card("Hearts", 10))
+    const cards = [];
+    cards.push(new Card('Hearts', 7));
+    cards.push(new Card('Hearts', 14));
+    cards.push(new Card('Hearts', 10));
 
     const trump = 'Hearts';
     expect(getWinningCard(cards, trump)).toEqual(cards[1]);
   });
 
   test('should return highest trump card, single suit', () => {
-    const cards = []
-    cards.push(new Card("Hearts", 7))
-    cards.push(new Card("Hearts", 10))
-    cards.push(new Card("Hearts", 9))
+    const cards = [];
+    cards.push(new Card('Hearts', 7));
+    cards.push(new Card('Hearts', 10));
+    cards.push(new Card('Hearts', 9));
 
     const trump = 'Hearts';
     expect(getWinningCard(cards, trump)).toEqual(cards[1]);
   });
 
   test('should return highest trump card, multiple suits', () => {
-    const cards = []
-    cards.push(new Card("Diamonds", 7))
-    cards.push(new Card("Hearts", 10))
-    cards.push(new Card("Hearts", 9))
+    const cards = [];
+    cards.push(new Card('Diamonds', 7));
+    cards.push(new Card('Hearts', 10));
+    cards.push(new Card('Hearts', 9));
 
     const trump = 'Hearts';
     expect(getWinningCard(cards, trump)).toEqual(cards[1]);
   });
 
   test('should return highest non-trump card if no trump cards present', () => {
-    const cards = []
-    cards.push(new Card("Hearts", 7))
-    cards.push(new Card("Hearts", 10))
-    cards.push(new Card("Hearts", 9))
+    const cards = [];
+    cards.push(new Card('Hearts', 7));
+    cards.push(new Card('Hearts', 10));
+    cards.push(new Card('Hearts', 9));
 
     const trump = 'Diamonds';
     expect(getWinningCard(cards, trump)).toEqual(cards[1]);

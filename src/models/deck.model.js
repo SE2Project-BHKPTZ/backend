@@ -4,7 +4,7 @@ class Deck {
   constructor() {
     const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
     this.cards = [];
-    suits.forEach(suit => {
+    suits.forEach((suit) => {
       for (let value = 0; value < 15; value += 1) {
         this.cards.push(new Card(suit, value));
       }
