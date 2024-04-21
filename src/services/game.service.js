@@ -51,7 +51,6 @@ exports.getWinningCard = (cards, trump) => {
     return winningCard;
 }
 
-
 exports.exportedForTesting = {
     isLastRound,
 };
