@@ -59,31 +59,31 @@ describe('Function isLastRound', () => {
 });
 
 describe('startRound', () => {
-    test('Should throw error if round is less than 1', () => {
+    test('should throw error if round is less than 1', () => {
         expect(() => {
             startRound(0, 3);
         }).toThrow('the count of rounds must be from 1 to 20');
     });
 
-    test('Should throw error if round is greater than 20', () => {
+    test('should throw error if round is greater than 20', () => {
         expect(() => {
             startRound(21, 3);
         }).toThrow('the count of rounds must be from 1 to 20');
     });
 
-    test('Should throw error if playerCount is less than 3', () => {
+    test('should throw error if playerCount is less than 3', () => {
         expect(() => {
             startRound(5, 2);
         }).toThrow('the player count must be from 3 to 6');
     });
 
-    test('Should throw error if playerCount is greater than 6', () => {
+    test('should throw error if playerCount is greater than 6', () => {
         expect(() => {
             startRound(5, 7);
         }).toThrow('the player count must be from 3 to 6');
     });
 
-    test('Should return an object with hands and trump', () => {
+    test('should return an object with hands and trump', () => {
         const round = 5;
         const playerCount = 4;
         const result = startRound(round, playerCount);
@@ -91,7 +91,7 @@ describe('startRound', () => {
         expect(result).toHaveProperty('trump');
     });
 
-    test('Should return an object with hands and without trump', () => {
+    test('should return an object with hands and without trump', () => {
         const round = 20;
         const playerCount = 3;
         const result = startRound(round, playerCount);
@@ -102,14 +102,14 @@ describe('startRound', () => {
 });
 
 describe('getWinningCard', () => {
-    test('Should return wizard card at the 1st position', () => {
+    test('should return wizard card at the 1st position', () => {
         const cards = []
         cards.push(new Card("Hearts", 14))
         const trump = 'Hearts';
         expect(getWinningCard(cards, trump)).toEqual(cards[0]);
     });
 
-    test('Should return wizard card at the 2nd position', () => {
+    test('should return wizard card at the 2nd position', () => {
         const cards = []
         cards.push(new Card("Hearts", 7))
         cards.push(new Card("Hearts", 14))
@@ -119,7 +119,7 @@ describe('getWinningCard', () => {
         expect(getWinningCard(cards, trump)).toEqual(cards[1]);
     });
 
-    test('Should return highest trump card, single suit', () => {
+    test('should return highest trump card, single suit', () => {
         const cards = []
         cards.push(new Card("Hearts", 7))
         cards.push(new Card("Hearts", 10))
@@ -129,7 +129,7 @@ describe('getWinningCard', () => {
         expect(getWinningCard(cards, trump)).toEqual(cards[1]);
     });
 
-    test('Should return highest trump card, multiple suits', () => {
+    test('should return highest trump card, multiple suits', () => {
         const cards = []
         cards.push(new Card("Diamonds", 7))
         cards.push(new Card("Hearts", 10))
@@ -139,7 +139,7 @@ describe('getWinningCard', () => {
         expect(getWinningCard(cards, trump)).toEqual(cards[1]);
     });
 
-    test('Should return highest non-trump card if no trump cards present', () => {
+    test('should return highest non-trump card if no trump cards present', () => {
         const cards = []
         cards.push(new Card("Hearts", 7))
         cards.push(new Card("Hearts", 10))
