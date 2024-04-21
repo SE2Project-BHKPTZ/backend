@@ -5,7 +5,7 @@ class Deck {
     const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
     this.cards = [];
     suits.forEach(suit => {
-      for (let value = 0; value <= 14; value = value + 1) {
+      for (let value = 0; value < 15; value += 1) {
         this.cards.push(new Card(suit, value));
       }
     });
@@ -16,7 +16,7 @@ class Deck {
 
     while (currentIndex !== 0) {
       const randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex = currentIndex - 1;
+      currentIndex -= 1;
 
       [this.cards[currentIndex], this.cards[randomIndex]] = [
         this.cards[randomIndex], this.cards[currentIndex]];
@@ -25,9 +25,9 @@ class Deck {
 
   deal(round, playerNumber) {
     const hands = [];
-    for (let i = 0; i < playerNumber; i=i+1) {
+    for (let i = 0; i < playerNumber; i += 1) {
       hands.push([]);
-      for (let j = 1; j <= round; j=j+1) {
+      for (let j = 1; j <= round; j += 1) {
         hands[i].push(this.drawCard());
       }
     }
@@ -35,7 +35,7 @@ class Deck {
   }
 
   drawCard() {
-    if (this.cards.length === 0) throw new Error("No cards left in the deck");
+    if (this.cards.length === 0) throw new Error('No cards left in the deck');
 
     return this.cards.pop();
   }

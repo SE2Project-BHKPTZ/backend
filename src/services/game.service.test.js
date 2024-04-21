@@ -97,7 +97,7 @@ describe('startRound', () => {
     const result = startRound(round, playerCount);
     expect(result).toHaveProperty('hands');
     expect(result).toHaveProperty('trump');
-    expect(result.trump).toEqual(null)
+    expect(result.trump).toEqual(null);
   });
 });
 
