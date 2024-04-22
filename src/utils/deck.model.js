@@ -31,8 +31,7 @@ class Deck {
     const hands = [];
     for (let i = 0; i < playerNumber; i += 1) {
       hands.push([]);
-      // NOSONAR not used in secure contexts
-      for (let j = 1; j <= round; j += 1) {
+      for (let j = 1; j <= round; j += 1) { // NOSONAR not used in secure contexts
         hands[i].push(this.drawCard());
       }
     }
