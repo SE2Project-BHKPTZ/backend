@@ -154,7 +154,7 @@ exports.kick = async (adminUUID, playerUUID) => new Promise(
               } catch (error) {
                 reject(new Error('User Websocket not connceted'));
               }
-              resolve('lobby left successfull');
+              resolve('user kicked successfull');
             });
           });
         });

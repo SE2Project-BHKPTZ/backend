@@ -99,13 +99,13 @@ async function leaveLobby(req, res) {
   }
 }
 async function kickFromLobby(req, res) {
+  if (req.body.uuid === undefined) {
+    res.status(400).json({ message: 'uuid undefined' });
+    return;
+  }
   try {
     res.json(await lobbyService.kick(req.uuid, req.body.uuid));
   } catch (err) {
-    if (req.body.uuid === undefined) {
-      res.status(400).json({ message: 'uuid undefined' });
-      return;
-    }
     res.status(500).json({ message: err.message });
   }
 }
