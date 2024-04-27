@@ -19,7 +19,7 @@ const getRandomString = async (len) => {
   return ans;
 };
 
-const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid });
+const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid.toString() });
 exports.getAll = async () => Lobby.find({});
 exports.getMy = async (playerUUID) => new Promise(
   (resolve, reject) => {

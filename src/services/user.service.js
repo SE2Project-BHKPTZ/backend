@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 
 const getByUsername = async (username) => User.findOne({ username: username.toString() });
-const getByUUID = async (uuid) => User.findOne({ uuid });
+const getByUUID = async (uuid) => User.findOne({ uuid: uuid.toString() });
 exports.getByUUID = async (uuid) => User.findOne({ uuid });
 exports.getAll = async () => User.find({});
 

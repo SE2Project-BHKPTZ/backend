@@ -104,7 +104,7 @@ async function kickFromLobby(req, res) {
     return;
   }
   try {
-    res.json(await lobbyService.kick(req.uuid, req.body.uuid));
+    res.json(await lobbyService.kick(req.uuid, req.body.uuid.toString()));
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
