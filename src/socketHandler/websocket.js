@@ -13,6 +13,7 @@ exports.createIO = (server) => {
   };
   io.use((socket, next) => {
     const { _query: { uuid } } = socket.request;
+    console.log(uuid);
     setWebsocket(uuid, socket.id);
     next();
   });

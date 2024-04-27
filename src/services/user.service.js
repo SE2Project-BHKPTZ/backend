@@ -19,6 +19,7 @@ exports.register = async (username, password) => new Promise((resolve, reject) =
       password: hashedPassword,
       uuid: uuidv4(),
       playedGames: [],
+      websocket: '',
     });
     await user.save();
 

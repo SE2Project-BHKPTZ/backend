@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   websocket: {
     type: String,
-    required: false,
+    required: true,
   },
 });
 

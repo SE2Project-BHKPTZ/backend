@@ -22,7 +22,7 @@ const lobbySchema = new mongoose.Schema({
     default: Date.now,
   },
   players: {
-    type: [String],
+    type: [Object],
     required: true,
   },
   maxPlayers: {
