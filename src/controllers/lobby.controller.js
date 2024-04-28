@@ -7,6 +7,17 @@ async function getLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+async function getCurrentLobby(req, res) {
+  try {
+    res.json(await lobbyService.getCurrentLobby(req.uuid));
+  } catch (err) {
+    if (err.message === 'Player is not in an lobby') {
+      res.status(400).json({ message: err.message });
+      return;
+    }
+    res.status(500).json({ message: err.message });
+  }
+}
 async function deleteLobby(req, res) {
   if (req.query.uuid === undefined) {
     res.status(400).json({ message: 'uuid undefined' });
@@ -77,10 +88,6 @@ async function joinLobby(req, res) {
   }
 }
 async function leaveLobby(req, res) {
-  if (req.query.uuid === undefined) {
-    res.status(400).json({ message: 'uuid undefined' });
-    return;
-  }
   try {
     res.json(await lobbyService.leave(req.uuid));
   } catch (err) {
@@ -91,10 +98,23 @@ async function leaveLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+async function kickFromLobby(req, res) {
+  if (req.body.uuid === undefined) {
+    res.status(400).json({ message: 'uuid undefined' });
+    return;
+  }
+  try {
+    res.json(await lobbyService.kick(req.uuid, req.body.uuid.toString()));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
 module.exports = {
   getLobby,
+  getCurrentLobby,
   createLobby,
   deleteLobby,
   joinLobby,
   leaveLobby,
+  kickFromLobby,
 };

@@ -28,10 +28,30 @@ jest.mock('../services/lobby.service.js', () => ({
       timestamp: '2024-04-13T06:56:57.162Z',
       __v: 0,
     }]),
+  getCurrentLobby: jest.fn().mockReturnValue(
+    {
+      _id: '661a2cb93c5b088ef67bc9fb',
+      uuid: '1500532b-377a-4d3c-9e75-6124bbc02b20',
+      lobbyid: 'HRTAFQ',
+      status: 'CREATED',
+      name: 'test',
+      players: [
+        'd3081378-f270-4e74-9463-b880123c49b6',
+      ],
+      maxPlayers: 3,
+      results: [
+
+      ],
+      isPublic: true,
+      timestamp: '2024-04-13T06:56:57.162Z',
+      __v: 0,
+    },
+  ),
   delete: jest.fn().mockReturnValue('delete successfull'),
   create: jest.fn().mockReturnValue('123HZD'),
   join: jest.fn().mockReturnValue('lobby joined successfull'),
   leave: jest.fn().mockReturnValue('lobby left successfull'),
+  kick: jest.fn().mockReturnValue('user kicked successfull'),
 }));
 
 jest.mock('../middlewares/auth.middleware.js', () => ({
@@ -54,6 +74,32 @@ describe('Get /lobbys', () => {
       throw new Error();
     });
     const response = await request(app).get('/lobbys').send();
+    expect(response.statusCode).toBe(500);
+  });
+});
+
+describe('Get /lobbys/my', () => {
+  test('should respond with a 200 status code', async () => {
+    const response = await request(app).get('/lobbys/my').send();
+    expect(response.statusCode).toBe(200);
+  });
+  test('should specify json in the content type header', async () => {
+    const response = await request(app).get('/lobbys/my').send();
+    expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+  });
+  test('should respond with a 400 status code', async () => {
+    lobbyService.getCurrentLobby.mockImplementation(() => {
+      throw new Error('Player is not in an lobby');
+    });
+    const response = await request(app).get('/lobbys/my').send();
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'Player is not in an lobby' }));
+  });
+  test('should respond with a 500 status code', async () => {
+    lobbyService.getCurrentLobby.mockImplementation(() => {
+      throw new Error();
+    });
+    const response = await request(app).get('/lobbys/my').send();
     expect(response.statusCode).toBe(500);
   });
 });
@@ -200,23 +246,18 @@ describe('Post /lobbys/join', () => {
 
 describe('Get /lobbys/leave', () => {
   test('should respond with a 200 status code', async () => {
-    const response = await request(app).get('/lobbys/leave').query({ uuid: '12uu34' }).send();
+    const response = await request(app).get('/lobbys/leave').send();
     expect(response.statusCode).toBe(200);
   });
   test('should specify json in the content type header', async () => {
     const response = await request(app).get('/lobbys/leave').send();
     expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
   });
-  test('should have name in the request', async () => {
-    const response = await request(app).get('/lobbys/leave').send({});
-    expect(response.statusCode).toBe(400);
-    expect(response.text).toBe(JSON.stringify({ message: 'uuid undefined' }));
-  });
   test('should return Player is not in an lobby error', async () => {
     lobbyService.leave.mockImplementation(() => {
       throw new Error('Player is not in an lobby');
     });
-    const response = await request(app).get('/lobbys/leave').query({ uuid: '12uu34' }).send();
+    const response = await request(app).get('/lobbys/leave').send();
     expect(response.statusCode).toBe(400);
     expect(response.text).toBe(JSON.stringify({ message: 'Player is not in an lobby' }));
   });
@@ -224,7 +265,30 @@ describe('Get /lobbys/leave', () => {
     lobbyService.leave.mockImplementation(() => {
       throw new Error();
     });
-    const response = await request(app).get('/lobbys/leave').query({ uuid: '12uu34' }).send();
+    const response = await request(app).get('/lobbys/leave').send();
+    expect(response.statusCode).toBe(500);
+  });
+});
+
+describe('Post /lobbys/kick', () => {
+  test('should respond with a 200 status code', async () => {
+    const response = await request(app).post('/lobbys/kick').send({ uuid: 'uuid' });
+    expect(response.statusCode).toBe(200);
+  });
+  test('should specify json in the content type header', async () => {
+    const response = await request(app).post('/lobbys/kick').send();
+    expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+  });
+  test('should return uuid undefined error', async () => {
+    const response = await request(app).post('/lobbys/kick').send();
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toBe(JSON.stringify({ message: 'uuid undefined' }));
+  });
+  test('should respond with a 500 status code', async () => {
+    lobbyService.kick.mockImplementation(() => {
+      throw new Error();
+    });
+    const response = await request(app).post('/lobbys/kick').send({ uuid: 'uuid' });
     expect(response.statusCode).toBe(500);
   });
 });

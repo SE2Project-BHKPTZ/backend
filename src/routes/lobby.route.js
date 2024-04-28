@@ -42,7 +42,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *               type: [object]
  *               description: The array of score objects of the players
  *             isPublic:
- *               type: boolean
+ *               type: integer
  *               desciption: Identifies if the lobby is public or private
  *           example:
  *             uuid: "1"
@@ -88,6 +88,40 @@ const authMiddleware = require('../middlewares/auth.middleware');
  *                   type: string
  */
 router.get('/', lobbyController.getLobby);
+/**
+ * @swagger
+ * /lobbys/my:
+ *   get:
+ *     summary: Get current user lobby
+ *     tags: [Lobbys]
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/Lobby'
+ *       401:
+ *         description: Unauthorized. Authentication is required to access this resource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal Server Error. Failed to delete lobby
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.get('/my', authMiddleware.authenticateToken, lobbyController.getCurrentLobby);
 /**
  * @swagger
  * /lobbys:
@@ -158,7 +192,7 @@ router.delete('/', authMiddleware.authenticateToken, lobbyController.deleteLobby
  *         name: isPublic
  *         required: true
  *         schema:
- *           type: boolean
+ *           type: integer
  *         description: Specifies if the lobby is public or private.
  *       - in: query
  *         name: maxPlayers
@@ -266,12 +300,6 @@ router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby
  *     summary: Leave the lobby
  *     tags: [Lobbys]
  *     parameters:
- *       - in: query
- *         name: uuid
- *         required: true
- *         description: The UUID of the player leaving the lobby.
- *         schema:
- *           type: string
  *     responses:
  *       200:
  *         description: Player successfully left the lobby.
@@ -283,16 +311,6 @@ router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby
  *                 message:
  *                   type: string
  *                   description: Confirmation message that the player left the lobby.
- *       400:
- *         description: Bad request. The UUID parameter is undefined or player is not in the lobby.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Error message for the bad request.
  *       401:
  *         description: Unauthorized. Authentication is required to access this resource
  *         content:
@@ -314,5 +332,44 @@ router.post('/join', authMiddleware.authenticateToken, lobbyController.joinLobby
  *                   description: Error message for the internal server error.
  */
 router.get('/leave', authMiddleware.authenticateToken, lobbyController.leaveLobby);
+/**
+ * @swagger
+ * /lobbys/kick:
+ *   post:
+ *     summary: Kick someone from the lobby
+ *     tags: [Lobbys]
+ *     parameters:
+ *     responses:
+ *       200:
+ *         description: Player successfully kicked from the lobby.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Player successfully kicked from the lobby.
+ *       401:
+ *         description: Unauthorized. Authentication is required to access this resource
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal Server Error. Failed to kick from the lobby.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message for the internal server error.
+ */
+router.post('/kick', authMiddleware.authenticateToken, lobbyController.kickFromLobby);
 
 module.exports = router;
