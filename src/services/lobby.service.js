@@ -21,7 +21,7 @@ const getRandomString = async (len) => {
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid.toString() });
 exports.getAll = async () => Lobby.find({});
-exports.getMy = async (playerUUID) => new Promise(
+exports.getCurrentLobby = async (playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then(async (data) => {
       if (data != null) {
@@ -135,27 +135,25 @@ exports.leave = async (playerUUID) => new Promise(
 );
 exports.kick = async (adminUUID, playerUUID) => new Promise(
   (resolve, reject) => {
-    isPlayerInLobby(adminUUID).then((adminlobby) => {
-      if (adminlobby == null) {
+    isPlayerInLobby(adminUUID).then((lobby) => {
+      if (lobby == null) {
         reject(new Error('You are not in the lobby'));
         return;
       }
-      if (adminlobby.players[0].uuid === adminUUID) {
-        isPlayerInLobby(playerUUID).then((lobby) => {
-          if (lobby == null) {
-            reject(new Error('Player is not in an lobby'));
-            return;
-          }
-          lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
-          lobby.save().then(() => {
-            userService.getByUUID(playerUUID).then(async (user) => {
-              try {
-                await socketService.kickedFromRoom(lobby.lobbyid, user.websocket, playerUUID);
-              } catch (error) {
-                reject(new Error('User Websocket not connceted'));
-              }
-              resolve('user kicked successfull');
-            });
+      if (lobby.players[0].uuid === adminUUID) {
+        if (lobby.players.filter((player) => player.uuid === playerUUID).length === 0) {
+          reject(new Error('Player is not in an lobby'));
+          return;
+        }
+        lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
+        lobby.save().then(() => {
+          userService.getByUUID(playerUUID).then(async (user) => {
+            try {
+              await socketService.kickedFromRoom(lobby.lobbyid, user.websocket, playerUUID);
+            } catch (error) {
+              reject(new Error('User Websocket not connceted'));
+            }
+            resolve('user kicked successfull');
           });
         });
       } else {

@@ -7,9 +7,9 @@ async function getLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
-async function getMy(req, res) {
+async function getCurrentLobby(req, res) {
   try {
-    res.json(await lobbyService.getMy(req.uuid));
+    res.json(await lobbyService.getCurrentLobby(req.uuid));
   } catch (err) {
     if (err.message === 'Player is not in an lobby') {
       res.status(400).json({ message: err.message });
@@ -111,7 +111,7 @@ async function kickFromLobby(req, res) {
 }
 module.exports = {
   getLobby,
-  getMy,
+  getCurrentLobby,
   createLobby,
   deleteLobby,
   joinLobby,

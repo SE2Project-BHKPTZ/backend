@@ -121,7 +121,7 @@ router.get('/', lobbyController.getLobby);
  *                 message:
  *                   type: string
  */
-router.get('/my', authMiddleware.authenticateToken, lobbyController.getMy);
+router.get('/my', authMiddleware.authenticateToken, lobbyController.getCurrentLobby);
 /**
  * @swagger
  * /lobbys:
@@ -174,7 +174,7 @@ router.get('/my', authMiddleware.authenticateToken, lobbyController.getMy);
  *                 message:
  *                   type: string
  */
-router.delete('/', lobbyController.deleteLobby);
+router.delete('/', authMiddleware.authenticateToken, lobbyController.deleteLobby);
 /**
  * @swagger
  * /lobbys:

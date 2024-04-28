@@ -28,7 +28,7 @@ jest.mock('../services/lobby.service.js', () => ({
       timestamp: '2024-04-13T06:56:57.162Z',
       __v: 0,
     }]),
-  getMy: jest.fn().mockReturnValue(
+  getCurrentLobby: jest.fn().mockReturnValue(
     {
       _id: '661a2cb93c5b088ef67bc9fb',
       uuid: '1500532b-377a-4d3c-9e75-6124bbc02b20',
@@ -88,7 +88,7 @@ describe('Get /lobbys/my', () => {
     expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
   });
   test('should respond with a 400 status code', async () => {
-    lobbyService.getMy.mockImplementation(() => {
+    lobbyService.getCurrentLobby.mockImplementation(() => {
       throw new Error('Player is not in an lobby');
     });
     const response = await request(app).get('/lobbys/my').send();
@@ -96,7 +96,7 @@ describe('Get /lobbys/my', () => {
     expect(response.text).toBe(JSON.stringify({ message: 'Player is not in an lobby' }));
   });
   test('should respond with a 500 status code', async () => {
-    lobbyService.getMy.mockImplementation(() => {
+    lobbyService.getCurrentLobby.mockImplementation(() => {
       throw new Error();
     });
     const response = await request(app).get('/lobbys/my').send();
