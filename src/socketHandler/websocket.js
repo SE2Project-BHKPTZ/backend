@@ -1,6 +1,7 @@
 const socketio = require('socket.io');
 const { instrument } = require('@socket.io/admin-ui');
 const { setWebsocket } = require('../services/user.service');
+const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
 
 let io;
 const { test } = require('./testHandler')(io);
@@ -10,6 +11,9 @@ exports.createIO = (server) => {
   const onConnection = (socket) => {
     console.log('connection');
     socket.on('test:test', test);
+    socket.on('startGame', startGame.bind(socket));
+    socket.on('cardPlayed', cardPlayed);
+    socket.on('trickPrediction', trickPrediction);
   };
   io.use((socket, next) => {
     const { _query: { uuid } } = socket.request;

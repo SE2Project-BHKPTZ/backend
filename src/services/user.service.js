@@ -19,7 +19,7 @@ exports.register = async (username, password) => new Promise((resolve, reject) =
       password: hashedPassword,
       uuid: uuidv4(),
       playedGames: [],
-      websocket: '',
+      websocket: 'null',
     });
     await user.save();
 
@@ -99,6 +99,7 @@ exports.setWebsocket = async (uuid, socketID) => new Promise((resolve, reject) =
     user.save();
     resolve('websocket set');
   }).catch((err) => {
+    // TODO: Dont throw error since it kills the server
     reject(new Error(err));
   });
 });
