@@ -20,7 +20,9 @@ const games = {
         subrounds: [
           {
             cardsPlayed: [
-              'Diamonds-0', 'Hearts-3', 'Clubs-10',
+              { player: 'f3d4e005-2960-4513-ac7c-ee60e1e88209', card: 'Diamonds-0' },
+              { player: 'f3d4e005-2960-4513-ac7c-ee60e1e88209', card: 'Diamonds-1' },
+              { player: 'f3d4e005-2960-4513-ac7c-ee60e1e88209', card: 'Diamonds-2' },
             ],
             stichPlayer: '9aee6f84-89f2-44d5-9170-1e9d756c1fc2',
           },
@@ -69,4 +71,28 @@ exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
 exports.addPrediction = (lobbyId, player, prediction) => {
   games[lobbyId].rounds[games[lobbyId].rounds.length - 1].predictions[player] = prediction;
+};
+
+exports.addSubround = (lobbyId) => {
+  games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds.push({ cardsPlayed: [], stichPlayer: '' });
+};
+
+exports.addCardPlayed = (lobbyId, player, card) => {
+  games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds[games[lobbyId]
+    .rounds[games[lobbyId].rounds.length - 1]
+    .subrounds.length - 1].cardsPlayed.push({ player, card });
+};
+
+exports.setStichPlayer = (lobbyId, player) => {
+  games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds[games[lobbyId]
+    .rounds[games[lobbyId].rounds.length - 1]
+    .subrounds.length - 1].stichPlayer = player;
+};
+
+exports.setNextPlayer = (lobbyId, player) => {
+  games[lobbyId].nextPlayer = player;
+};
+
+exports.addRound = (lobbyId) => {
+  games[lobbyId].rounds.push(createRound());
 };
