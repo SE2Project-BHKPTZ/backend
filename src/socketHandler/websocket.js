@@ -11,9 +11,9 @@ exports.createIO = (server) => {
   const onConnection = (socket) => {
     console.log('connection');
     socket.on('test:test', test);
-    socket.on('startGame', startGame.bind(socket));
-    socket.on('cardPlayed', cardPlayed);
-    socket.on('trickPrediction', trickPrediction);
+    socket.on('startGame', (payload) => startGame(socket, io, payload));
+    socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
+    socket.on('trickPrediction', (payload) => trickPrediction(socket, io, payload));
   };
   io.use((socket, next) => {
     const { _query: { uuid } } = socket.request;

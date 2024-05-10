@@ -1,20 +1,16 @@
 const { startRound } = require('../services/game.service');
 
-const startGame = function () {
-  const socket = this;
+const startGame = function (socket, io, payload) {
   const room = Array.from(socket.rooms).pop();
 
   // TODO: Add a new game entry
 
   // TODO: send cards
   const gameData = startRound(1, 3);
-  socket.emit('startGame', gameData);
-  socket.to(room).emit('startGame', gameData);
-
-  // TODO: Start trick prediction
+  io.to(room).emit('startGame', gameData);
 };
 
-const cardPlayed = function (payload) {
+const cardPlayed = function (socket, io, payload) {
   console.log('Card played: ', payload);
 
   // TODO: Play a card
@@ -24,7 +20,7 @@ const cardPlayed = function (payload) {
   // TODO: If it is the last subround -> start trick prediction
 };
 
-const trickPrediction = function () {
+const trickPrediction = function (socket, io, payload) {
   // TODO: Add a trick prediction to the game
 
   // TODO: If all predictions are made -> send play event
