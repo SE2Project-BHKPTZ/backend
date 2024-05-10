@@ -54,8 +54,6 @@ jest.mock('../services/lobby.service.js', () => ({
   kick: jest.fn().mockReturnValue('user kicked successfull'),
 }));
 
-const socketService = require('../services/socket.service');
-
 jest.mock('../services/socket.service');
 
 jest.mock('../middlewares/auth.middleware.js', () => ({

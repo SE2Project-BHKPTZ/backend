@@ -133,7 +133,11 @@ async function kickFromLobby(req, res) {
     const response = await lobbyService.kick(req.uuid, req.body.uuid.toString());
 
     try {
-      await socketService.kickedFromRoom(response.lobbyid, response.websocket, req.body.uuid.toString());
+      await socketService.kickedFromRoom(
+        response.lobbyid,
+        response.websocket,
+        req.body.uuid.toString(),
+      );
     } catch (error) {
       res.status(400).json({ message: 'User Websocket not connected' });
       return;
