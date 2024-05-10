@@ -1,5 +1,6 @@
 const {
   startRound,
+  getRounds,
   getWinningCard,
   addCardPlayed,
   setStichPlayer,
@@ -8,8 +9,7 @@ const {
   addSubround,
   getPlayers,
 } = require('../services/game.service');
-
-const { startRound, isLastRound } = require('../services/game.service');
+const { getNextPlayer } = require('../services/gamestate.service');
 
 
 const startGame = function (socket, io, payload) {
@@ -27,11 +27,9 @@ const cardPlayed = function (socket, io, payload) {
 
   const { player, card } = payload;
 
-  // TODO: Play a card
+  const lobbyId = Array.from(socket.rooms).pop();
   addCardPlayed(lobbyId, player, card);
-
-  const room = Array.from(socket.rooms).pop();
-  io.to(room).emit('cardPlayed', payload);
+  io.to(lobbyId).emit('cardPlayed', payload);
 
   // If all cards are played calculate outcome
   const players = Object.keys(getPlayers(lobbyId));
@@ -41,15 +39,17 @@ const cardPlayed = function (socket, io, payload) {
 
   // Calculate winner
   const cards = subround.cardsPlayed.map((play) => play.card);
-  const winningCard = getWinningCard(cards, null); // Pass trump as null for now // TODO: set correct trump
+  // TODO: set the trump
+  const winningCard = getWinningCard(cards, null); // Pass trump as null for now 
   const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
   setStichPlayer(lobbyId, winner.player);
 
   // players still left to play this subround
   if (subround.cardsPlayed.length < players.length) {
-    const nextPlayer = players.findIndex(player)++ == players.length ? players[0] : players[players.findIndex(player)++]
+    const idxPlayer = players.findIndex(getNextPlayer(lobbyId));
+    const nextPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1]
     setNextPlayer(lobbyId, nextPlayer);
-    io.to(room).emit('nextPlayer', nextPlayer);
+    io.to(lobbyId).emit('nextPlayer', nextPlayer);
     return
   }
 
@@ -60,18 +60,18 @@ const cardPlayed = function (socket, io, payload) {
   // are there subrounds left
   if (players.find[player].hands.length !== 0) {
     addSubround(lobbyId);
-
-    const newSubroundStartPlayer = (players.findIndex(player)++) == players.length ? players[0] : players[players.findIndex(player)++]
-    setNextPlayer(lobbyId, newSubroundStartPlayer);
-    io.to(room).emit('nextSubround', newSubroundStartPlayer);
+    const idxPlayer = players.findIndex(getNextPlayer(lobbyId));
+    const newSRoundPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
+    setNextPlayer(lobbyId, newSRoundPlayer);
+    io.to(lobbyId).emit('nextSubround', newSRoundPlayer);
     return
-  } 
+  }
 
   // If it is, start a new round
   addRound(lobbyId);
   const nextRound = getRounds(lobbyId).length;
   const gameData = startRound(nextRound, players.length);
-  io.to(room).emit('startGame', gameData);
+  io.to(lobbyId).emit('startGame', gameData);
 };
 
 const trickPrediction = function (socket, io, payload) {
