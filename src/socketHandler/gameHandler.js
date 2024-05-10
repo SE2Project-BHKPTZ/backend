@@ -1,11 +1,13 @@
 const { startRound } = require('../services/game.service');
+const { createGame } = require('../services/gamestate.service');
+const { getByLobbyID } = require('../services/lobby.service');
 
-const startGame = function (socket, io, payload) {
+const startGame = async function (socket, io, payload) {
   const room = Array.from(socket.rooms).pop();
+  const lobby = await getByLobbyID(room);
 
-  // TODO: Add a new game entry
+  createGame(room, lobby.players);
 
-  // TODO: send cards
   const gameData = startRound(1, 3);
   io.to(room).emit('startGame', gameData);
 };
