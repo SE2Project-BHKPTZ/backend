@@ -33,7 +33,7 @@ const cardPlayed = async function (socket, io, payload) {
   const lobbyId = lobby.lobbyid;
 
   try {
-    const { value, suit } = payload;
+    const { value, suit, trump } = payload;
     const card = new Card(suit, value);
 
     addCardPlayed(lobbyId, player, card);
@@ -48,8 +48,7 @@ const cardPlayed = async function (socket, io, payload) {
 
     // Calculate winner
     const cards = subround.cardsPlayed.map((play) => play.card);
-    // TODO: set the trump
-    const winningCard = getWinningCard(cards, null); // Pass trump as null for now
+    const winningCard = getWinningCard(cards, trump);
     const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
     setStichPlayer(lobbyId, winner.player);
 
