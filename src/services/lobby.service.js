@@ -49,7 +49,7 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
       } else {
         const lobby = new Lobby({
           uuid: uuidv4(),
-          lobbyid: await getRandomString(6),
+          lobbyid: 'AAAAAA', //await getRandomString(6),
           status: 'CREATED',
           name,
           players: [

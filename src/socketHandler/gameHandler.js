@@ -3,7 +3,6 @@ const {
   getRounds,
   addCardPlayed,
   setStichPlayer,
-  getNextPlayer,
   setNextPlayer,
   addRound,
   addSubround,
@@ -14,14 +13,13 @@ const { getCurrentLobby } = require('../services/lobby.service');
 const { getByWebsocket } = require('../services/user.service');
 const Card = require('../utils/card.model');
 
-
 const startGame = async function (socket, io) {
   const user = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(user.uuid);
 
   createGame(lobby.lobbyid, lobby.players);
 
-  addSubround(lobby.lobbyid)
+  addSubround(lobby.lobbyid);
 
   const gameData = startRound(1, 3);
   io.to(lobby.lobbyid).emit('startGame', gameData);
@@ -36,10 +34,10 @@ const cardPlayed = async function (socket, io, payload) {
 
   try {
     const { value, suit } = payload;
-    const card = new Card(suit, value)
+    const card = new Card(suit, value);
 
     addCardPlayed(lobbyId, player, card);
-    payload['player'] = player.username;
+    payload.player = player.username;
     io.to(lobbyId).emit('cardPlayed', payload);
 
     // If all cards are played calculate outcome
@@ -51,19 +49,18 @@ const cardPlayed = async function (socket, io, payload) {
     // Calculate winner
     const cards = subround.cardsPlayed.map((play) => play.card);
     // TODO: set the trump
-    const winningCard = getWinningCard(cards, null); // Pass trump as null for now 
+    const winningCard = getWinningCard(cards, null); // Pass trump as null for now
     const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
     setStichPlayer(lobbyId, winner.player);
 
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
       const idxPlayer = players.indexOf(player.uuid);
-      const nextPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1]
+      const nextPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
       setNextPlayer(lobbyId, nextPlayer);
       io.to(lobbyId).emit('nextPlayer', nextPlayer);
-      return
+      return;
     }
-
 
     // Calculate points for the round (if any)
     // TODO: calculate & save points
@@ -76,7 +73,7 @@ const cardPlayed = async function (socket, io, payload) {
       addSubround(lobbyId);
       setNextPlayer(lobbyId, newSRoundPlayer);
       io.to(lobbyId).emit('nextSubround', newSRoundPlayer);
-      return
+      return;
     }
 
     // If it is, start a new round
@@ -84,7 +81,7 @@ const cardPlayed = async function (socket, io, payload) {
     const nextRound = getRounds(lobbyId).length;
     const gameData = startRound(nextRound, players.length);
     io.to(lobbyId).emit('startGame', gameData);
-  }catch(err){
+  } catch (err) {
     console.log(err.message);
   }
 };
