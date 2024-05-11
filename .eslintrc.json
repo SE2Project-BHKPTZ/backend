@@ -20,6 +20,7 @@
       "off"
     ],
     "no-param-reassign": ["error", { "props": false }],
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "func-names": "off"
   }
 }

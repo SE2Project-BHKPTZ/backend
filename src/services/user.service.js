@@ -7,6 +7,7 @@ const getByUsername = async (username) => User.findOne({ username: username.toSt
 const getByUUID = async (uuid) => User.findOne({ uuid: uuid.toString() });
 exports.getByUUID = async (uuid) => User.findOne({ uuid });
 exports.getAll = async () => User.find({});
+exports.getByWebsocket = async (websocket) => User.findOne({ websocket });
 
 exports.register = async (username, password) => new Promise((resolve, reject) => {
   getByUsername(username).then(async (fetchedUser) => {
@@ -19,7 +20,7 @@ exports.register = async (username, password) => new Promise((resolve, reject) =
       password: hashedPassword,
       uuid: uuidv4(),
       playedGames: [],
-      websocket: '',
+      websocket: 'null',
     });
     await user.save();
 
@@ -99,6 +100,7 @@ exports.setWebsocket = async (uuid, socketID) => new Promise((resolve, reject) =
     user.save();
     resolve('websocket set');
   }).catch((err) => {
+    // TODO: Dont throw error since it kills the server
     reject(new Error(err));
   });
 });

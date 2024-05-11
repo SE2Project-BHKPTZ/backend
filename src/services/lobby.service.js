@@ -1,6 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
 const Lobby = require('../models/lobby.model');
-const socketService = require('./socket.service');
 const userService = require('./user.service');
 
 const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
@@ -20,7 +19,9 @@ const getRandomString = async (len) => {
 };
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid.toString() });
+
 exports.getAll = async () => Lobby.find({});
+
 exports.getCurrentLobby = async (playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then(async (data) => {
@@ -32,12 +33,14 @@ exports.getCurrentLobby = async (playerUUID) => new Promise(
     });
   },
 );
+
 exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then(((data) => {
   if (data.deletedCount === 0) {
     throw Error('Lobby not found');
   }
   return 'delete successfull';
 }));
+
 exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then(async (data) => {
@@ -58,20 +61,14 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
         lobby.save().then((result, err) => {
           if (err) reject(new Error(err));
           userService.getByUUID(playerUUID).then(async (user) => {
-            try {
-              await socketService.joinRoom(result.lobbyid, user.websocket, playerUUID);
-            } catch (error) {
-              reject(new Error('User Websocket not connceted'));
-              return;
-            }
-
-            resolve(result.lobbyid);
+            resolve({ lobbyid: result.lobbyid, websocket: user.websocket });
           });
         });
       }
     });
   },
 );
+
 exports.join = async (lobbyID, playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then((data) => {
@@ -93,20 +90,14 @@ exports.join = async (lobbyID, playerUUID) => new Promise(
         );
         lobby.save().then(() => {
           userService.getByUUID(playerUUID).then(async (user) => {
-            try {
-              await socketService.joinRoom(lobbyID, user.websocket, playerUUID);
-            } catch (error) {
-              reject(new Error('User Websocket not connceted'));
-              return;
-            }
-
-            resolve(lobbyID);
+            resolve({ lobbyId: lobbyID, websocket: user.websocket });
           });
         });
       });
     });
   },
 );
+
 exports.leave = async (playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(playerUUID).then((lobby) => {
@@ -122,17 +113,13 @@ exports.leave = async (playerUUID) => new Promise(
       }
       lobby.save().then(() => {
         userService.getByUUID(playerUUID).then(async (user) => {
-          try {
-            await socketService.leaveRoom(lobby.lobbyid, user.websocket, playerUUID);
-          } catch (error) {
-            reject(new Error('User Websocket not connceted'));
-          }
-          resolve('lobby left successfull');
+          resolve({ message: 'lobby left successfull', lobbyid: lobby.lobbyid, websocket: user.websocket });
         });
       });
     });
   },
 );
+
 exports.kick = async (adminUUID, playerUUID) => new Promise(
   (resolve, reject) => {
     isPlayerInLobby(adminUUID).then((lobby) => {
@@ -148,12 +135,7 @@ exports.kick = async (adminUUID, playerUUID) => new Promise(
         lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
         lobby.save().then(() => {
           userService.getByUUID(playerUUID).then(async (user) => {
-            try {
-              await socketService.kickedFromRoom(lobby.lobbyid, user.websocket, playerUUID);
-            } catch (error) {
-              reject(new Error('User Websocket not connceted'));
-            }
-            resolve('user kicked successfull');
+            resolve({ message: 'user kicked successfull', lobbyid: lobby.lobbyid, websocket: user.websocket });
           });
         });
       } else {
@@ -166,3 +148,5 @@ exports.kick = async (adminUUID, playerUUID) => new Promise(
 exports.exportedForTesting = {
   getRandomString,
 };
+
+exports.getByLobbyID = getByLobbyID;

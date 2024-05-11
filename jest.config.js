@@ -4,7 +4,7 @@ module.exports = {
     'src/**/*.{js,jsx}',
     '!src/models/**',
     '!src/services/socket.service.js',
-    '!src/socketHandler/websocket.js',
+    '!src/socketHandler/**',
     '!**/node_modules/**',
     '!**/vendor/**',
     '!**/coverage/**',
