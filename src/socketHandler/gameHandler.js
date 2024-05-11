@@ -1,15 +1,16 @@
 const { startRound } = require('../services/game.service');
 const { createGame } = require('../services/gamestate.service');
-const { getByLobbyID } = require('../services/lobby.service');
+const { getCurrentLobby } = require('../services/lobby.service');
+const { getByWebsocket } = require('../services/user.service');
 
 const startGame = async function (socket, io) {
-  const room = Array.from(socket.rooms).pop();
-  const lobby = await getByLobbyID(room);
+  const user = await getByWebsocket(socket.id);
+  const lobby = await getCurrentLobby(user.uuid);
 
-  createGame(room, lobby.players);
+  createGame(lobby.lobbyid, lobby.players);
 
   const gameData = startRound(1, 3);
-  io.to(room).emit('startGame', gameData);
+  io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
 const cardPlayed = function (socket, io, payload) {
