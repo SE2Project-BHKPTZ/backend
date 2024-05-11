@@ -21,19 +21,25 @@ const startGame = async function (socket, io) {
 
   createGame(lobby.lobbyid, lobby.players);
 
+  addSubround(lobby.lobbyid)
+
   const gameData = startRound(1, 3);
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
-const cardPlayed = function (socket, io, payload) {
+const cardPlayed = async function (socket, io, payload) {
   console.log('Card played: ', payload);
 
+  const player = await getByWebsocket(socket.id);
+  const lobby = await getCurrentLobby(player.uuid);
+  const lobbyId = lobby.lobbyid;
+
   try {
-    const { player, value, suit } = payload;
+    const { value, suit } = payload;
     const card = new Card(suit, value)
 
-    const lobbyId = Array.from(socket.rooms).pop();
     addCardPlayed(lobbyId, player, card);
+    payload['player'] = player.username;
     io.to(lobbyId).emit('cardPlayed', payload);
 
     // If all cards are played calculate outcome
@@ -51,7 +57,7 @@ const cardPlayed = function (socket, io, payload) {
 
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
-      const idxPlayer = players.findIndex(getNextPlayer(lobbyId));
+      const idxPlayer = players.indexOf(player.uuid);
       const nextPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1]
       setNextPlayer(lobbyId, nextPlayer);
       io.to(lobbyId).emit('nextPlayer', nextPlayer);
@@ -60,13 +66,14 @@ const cardPlayed = function (socket, io, payload) {
 
 
     // Calculate points for the round (if any)
-    // TODO: save points
+    // TODO: calculate & save points
 
     // are there subrounds left
-    if (players.find[player].hands.length !== 0) {
+    const idxPlayer = players.indexOf(player.uuid);
+    const newSRoundPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
+
+    if (getPlayers(lobbyId)[newSRoundPlayer].cards.length !== 0) {
       addSubround(lobbyId);
-      const idxPlayer = players.findIndex(getNextPlayer(lobbyId));
-      const newSRoundPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
       setNextPlayer(lobbyId, newSRoundPlayer);
       io.to(lobbyId).emit('nextSubround', newSRoundPlayer);
       return

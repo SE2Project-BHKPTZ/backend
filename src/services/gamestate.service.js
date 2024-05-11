@@ -3,7 +3,7 @@ const games = {};
 function createPlayerFields(players) {
   const playerFields = {};
   for (let i = 0; i < players.length; i += 1) {
-    playerFields[players[i]] = {
+    playerFields[players[i].uuid] = {
       cards: [],
       points: 0,
     };
@@ -45,9 +45,10 @@ exports.addSubround = (lobbyId) => {
 };
 
 exports.addCardPlayed = (lobbyId, player, card) => {
-  games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds[games[lobbyId]
-    .rounds[games[lobbyId].rounds.length - 1]
-    .subrounds.length - 1].cardsPlayed.push({ player, card });
+  games[lobbyId].rounds[games[lobbyId].rounds.length - 1]
+    .subrounds[games[lobbyId]
+      .rounds[games[lobbyId].rounds.length - 1]
+      .subrounds.length - 1].cardsPlayed.push({ player, card });
 };
 
 exports.setStichPlayer = (lobbyId, player) => {
