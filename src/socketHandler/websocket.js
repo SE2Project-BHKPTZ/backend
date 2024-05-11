@@ -4,13 +4,11 @@ const { setWebsocket } = require('../services/user.service');
 const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
 
 let io;
-const { test } = require('./testHandler')(io);
 
 exports.createIO = (server) => {
   io = socketio(server, { cors: { origin: '*' } });
   const onConnection = (socket) => {
     console.log('connection');
-    socket.on('test:test', test);
     socket.on('startGame', (payload) => startGame(socket, io, payload));
     socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
     socket.on('trickPrediction', (payload) => trickPrediction(socket, io, payload));

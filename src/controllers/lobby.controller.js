@@ -1,4 +1,5 @@
 const lobbyService = require('../services/lobby.service');
+const socketService = require('../services/socket.service');
 
 async function getLobby(req, res) {
   try {
@@ -55,14 +56,21 @@ async function createLobby(req, res) {
     return;
   }
   try {
-    res.json(
-      await lobbyService.create(
-        req.body.name.toString(),
-        req.body.isPublic.toString(),
-        req.body.maxPlayers,
-        req.uuid,
-      ),
+    const response = await lobbyService.create(
+      req.body.name.toString(),
+      req.body.isPublic.toString(),
+      req.body.maxPlayers,
+      req.uuid,
     );
+
+    try {
+      await socketService.joinRoom(response.lobbyid, response.websocket, req.uuid);
+    } catch (error) {
+      res.status(400).json({ message: 'Could not join lobby' });
+      return;
+    }
+
+    res.json(response.lobbyid);
   } catch (err) {
     if (err.message === 'Player is already in an lobby') {
       res.status(400).json({ message: err.message });
@@ -78,7 +86,16 @@ async function joinLobby(req, res) {
   }
 
   try {
-    res.json(await lobbyService.join(req.body.lobbyID.toString(), req.uuid));
+    const response = await lobbyService.join(req.body.lobbyID.toString(), req.uuid);
+
+    try {
+      await socketService.joinRoom(response.lobbyId, response.websocket, req.uuid);
+    } catch (error) {
+      res.status(400).json({ message: 'User Websocket not connected' });
+      return;
+    }
+
+    res.json(response.lobbyId);
   } catch (err) {
     if (err.message === 'Player is already in an lobby') {
       res.status(400).json({ message: err.message });
@@ -89,7 +106,16 @@ async function joinLobby(req, res) {
 }
 async function leaveLobby(req, res) {
   try {
-    res.json(await lobbyService.leave(req.uuid));
+    const response = await lobbyService.leave(req.uuid);
+
+    try {
+      await socketService.leaveRoom(response.lobbyid, response.websocket, req.uuid);
+    } catch (error) {
+      res.status(400).json({ message: 'User Websocket not connected' });
+      return;
+    }
+
+    res.json(response.message);
   } catch (err) {
     if (err.message === 'Player is not in an lobby') {
       res.status(400).json({ message: err.message });
@@ -104,7 +130,20 @@ async function kickFromLobby(req, res) {
     return;
   }
   try {
-    res.json(await lobbyService.kick(req.uuid, req.body.uuid.toString()));
+    const response = await lobbyService.kick(req.uuid, req.body.uuid.toString());
+
+    try {
+      await socketService.kickedFromRoom(
+        response.lobbyid,
+        response.websocket,
+        req.body.uuid.toString(),
+      );
+    } catch (error) {
+      res.status(400).json({ message: 'User Websocket not connected' });
+      return;
+    }
+
+    res.json(response.message);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

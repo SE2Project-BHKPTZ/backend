@@ -1,4 +1,5 @@
 const {
+  createGame,
   getRounds,
   addCardPlayed,
   setStichPlayer,
@@ -9,17 +10,19 @@ const {
   getPlayers,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
-
+const { getCurrentLobby } = require('../services/lobby.service');
+const { getByWebsocket } = require('../services/user.service');
 const Card = require('../utils/card.model');
 
-const startGame = function (socket, io, payload) {
-  const room = Array.from(socket.rooms).pop();
 
-  // TODO: Add a new game entry
+const startGame = async function (socket, io) {
+  const user = await getByWebsocket(socket.id);
+  const lobby = await getCurrentLobby(user.uuid);
 
-  // TODO: send cards
+  createGame(lobby.lobbyid, lobby.players);
+
   const gameData = startRound(1, 3);
-  io.to(room).emit('startGame', gameData);
+  io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
 const cardPlayed = function (socket, io, payload) {
@@ -80,6 +83,8 @@ const cardPlayed = function (socket, io, payload) {
 };
 
 const trickPrediction = function (socket, io, payload) {
+  console.log('Trick prediction: ', payload);
+
   // TODO: Add a trick prediction to the game
 
   // TODO: If all predictions are made -> send play event
