@@ -68,7 +68,8 @@ const cardPlayed = async function (socket, io, payload) {
     const idxPlayer = players.indexOf(player.uuid);
     const newSRoundPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
 
-    if (getPlayers(lobbyId)[newSRoundPlayer].cards.length !== 0) {
+    const currentRound = getRounds(lobbyId).length;
+    if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
       setNextPlayer(lobbyId, newSRoundPlayer);
       io.to(lobbyId).emit('nextSubround', newSRoundPlayer);
@@ -77,6 +78,7 @@ const cardPlayed = async function (socket, io, payload) {
 
     // If it is, start a new round
     addRound(lobbyId);
+    addSubround(lobbyId);
     const nextRound = getRounds(lobbyId).length;
     const gameData = startRound(nextRound, players.length);
     io.to(lobbyId).emit('startGame', gameData);
