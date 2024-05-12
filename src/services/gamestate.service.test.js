@@ -17,7 +17,11 @@ describe('Game Functions', () => {
 
   beforeAll(() => {
     // Create a game before each test
-    createGame('lobby1', ['player1', 'player2']);
+    const player1 = {};
+    player1.uuid = 'player1';
+    const player2 = {};
+    player2.uuid = 'player2';
+    createGame('lobby1', [player1, player2]);
   });
 
   test('Creates a game correctly', () => {
