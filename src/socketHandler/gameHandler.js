@@ -73,7 +73,7 @@ const cardPlayed = async function (socket, io, payload) {
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
       setNextPlayer(lobbyId, players[idxNextPlayer]);
-      io.to(lobbyId).emit('nextSubround', players.indexOf(idxNextPlayer));
+      io.to(lobbyId).emit('nextSubround', idxNextPlayer);
       return;
     }
 
