@@ -30,11 +30,19 @@ exports.createGame = (lobbyId, players) => {
 
 exports.getGame = (lobbyId) => games[lobbyId];
 
-exports.getRounds = (lobbyId) => games[lobbyId].rounds;
+const getRounds = exports.getRounds = (lobbyId) => games[lobbyId].rounds;
 
 exports.getPlayers = (lobbyId) => games[lobbyId].players;
 
 exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
+
+const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRounds(lobbyId).length;
+
+const getPredictionsForRound = exports.getPredictionsForRound = (lobbyId, round) => games[lobbyId].rounds[round - 1].predictions;
+
+exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
+
+exports.getPredictionCount = (predictions) => Object.keys(predictions).length;
 
 exports.addPrediction = (lobbyId, player, prediction) => {
   games[lobbyId].rounds[games[lobbyId].rounds.length - 1].predictions[player] = prediction;
