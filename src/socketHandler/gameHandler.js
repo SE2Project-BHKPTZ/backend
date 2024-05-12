@@ -8,7 +8,8 @@ const {
   addSubround,
   getPlayers,
   addPrediction,
-  getGame, getPredictionsForCurrentRound, getPredictionCount,
+  getPredictionsForCurrentRound, getPredictionCount,
+  getNextPlayer,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby } = require('../services/lobby.service');
@@ -54,12 +55,13 @@ const cardPlayed = async function (socket, io, payload) {
     const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
     setStichPlayer(lobbyId, winner.player);
 
+    const idxPlayer = players.indexOf(player.uuid);
+    const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
+
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
-      const idxPlayer = players.indexOf(player.uuid);
-      const nextPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
-      setNextPlayer(lobbyId, nextPlayer);
-      io.to(lobbyId).emit('nextPlayer', nextPlayer);
+      setNextPlayer(lobbyId, players[idxNextPlayer]);
+      io.to(lobbyId).emit('nextPlayer', idxNextPlayer);
       return;
     }
 
@@ -67,14 +69,11 @@ const cardPlayed = async function (socket, io, payload) {
     // TODO: calculate & save points
 
     // are there subrounds left
-    const idxPlayer = players.indexOf(player.uuid);
-    const newSRoundPlayer = idxPlayer + 1 === players.length ? players[0] : players[idxPlayer + 1];
-
     const currentRound = getRounds(lobbyId).length;
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
-      setNextPlayer(lobbyId, newSRoundPlayer);
-      io.to(lobbyId).emit('nextSubround', newSRoundPlayer);
+      setNextPlayer(lobbyId, players[idxNextPlayer]);
+      io.to(lobbyId).emit('nextSubround', players.indexOf(idxNextPlayer));
       return;
     }
 
@@ -83,7 +82,7 @@ const cardPlayed = async function (socket, io, payload) {
     addSubround(lobbyId);
     const nextRound = getRounds(lobbyId).length;
     const gameData = startRound(nextRound, players.length);
-    io.to(lobbyId).emit('startGame', gameData);
+    io.to(lobbyId).emit('startRound', gameData);
   } catch (err) {
     console.log(err.message);
   }
@@ -101,7 +100,8 @@ const trickPrediction = async function (socket, io, payload) {
 
   const predictions = getPredictionsForCurrentRound(lobbyId);
   if (getPredictionCount(predictions) === playerSize) {
-    io.to(lobbyId).emit('startRound', '');
+    const players = Object.keys(getPlayers(lobbyId));
+    io.to(lobbyId).emit('nextPlayer', players.indexOf(getNextPlayer(lobbyId)));
   }
 };
 

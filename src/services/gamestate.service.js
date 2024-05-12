@@ -22,7 +22,7 @@ exports.createGame = (lobbyId, players) => {
   games[lobbyId] = {
     players: createPlayerFields(players),
     rounds: [],
-    nextPlayer: players[0],
+    nextPlayer: players[0].uuid,
   };
   games[lobbyId].rounds.push(createRound());
   return games[lobbyId];
