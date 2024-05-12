@@ -38,8 +38,10 @@ exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
 const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRounds(lobbyId).length;
 
+// eslint-disable-next-line max-len
 const getPredictionsForRound = exports.getPredictionsForRound = (lobbyId, round) => games[lobbyId].rounds[round - 1].predictions;
 
+// eslint-disable-next-line max-len
 exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
 
 exports.getPredictionCount = (predictions) => Object.keys(predictions).length;
