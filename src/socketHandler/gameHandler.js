@@ -1,7 +1,20 @@
-const { startRound } = require('../services/game.service');
-const { createGame } = require('../services/gamestate.service');
+const {
+  createGame,
+  getRounds,
+  addCardPlayed,
+  setStichPlayer,
+  setNextPlayer,
+  addRound,
+  addSubround,
+  getPlayers,
+  addPrediction,
+  getPredictionsForCurrentRound, getPredictionCount,
+  getNextPlayer,
+} = require('../services/gamestate.service');
+const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby } = require('../services/lobby.service');
 const { getByWebsocket } = require('../services/user.service');
+const Card = require('../utils/card.model');
 
 const startGame = async function (socket, io) {
   const user = await getByWebsocket(socket.id);
@@ -9,26 +22,87 @@ const startGame = async function (socket, io) {
 
   createGame(lobby.lobbyid, lobby.players);
 
+  addSubround(lobby.lobbyid);
+
   const gameData = startRound(1, 3);
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
-const cardPlayed = function (socket, io, payload) {
+const cardPlayed = async function (socket, io, payload) {
   console.log('Card played: ', payload);
 
-  // TODO: Play a card
+  const player = await getByWebsocket(socket.id);
+  const lobby = await getCurrentLobby(player.uuid);
+  const lobbyId = lobby.lobbyid;
 
-  // TODO: If all cards are played calculate outcome
+  try {
+    const { value, suit, trump } = payload;
+    const card = new Card(suit, value);
 
-  // TODO: If it is the last subround -> start trick prediction
+    addCardPlayed(lobbyId, player, card);
+    payload.player = player.username;
+    io.to(lobbyId).emit('cardPlayed', payload);
+
+    // If all cards are played calculate outcome
+    const players = Object.keys(getPlayers(lobbyId));
+    const subround = getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds[
+      getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length - 1
+    ];
+
+    // Calculate winner
+    const cards = subround.cardsPlayed.map((play) => play.card);
+    const winningCard = getWinningCard(cards, trump);
+    const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
+    setStichPlayer(lobbyId, winner.player);
+
+    const idxPlayer = players.indexOf(player.uuid);
+    const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
+
+    // players still left to play this subround
+    if (subround.cardsPlayed.length < players.length) {
+      setNextPlayer(lobbyId, players[idxNextPlayer]);
+      io.to(lobbyId).emit('nextPlayer', idxNextPlayer);
+      return;
+    }
+
+    // Calculate points for the round (if any)
+    // TODO: calculate & save points
+
+    // are there subrounds left
+    const currentRound = getRounds(lobbyId).length;
+    if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
+      addSubround(lobbyId);
+      setNextPlayer(lobbyId, players[idxNextPlayer]);
+      io.to(lobbyId).emit('nextSubround', idxNextPlayer);
+      return;
+    }
+
+    // If it is, start a new round
+    addRound(lobbyId);
+    addSubround(lobbyId);
+    const nextRound = getRounds(lobbyId).length;
+    const gameData = startRound(nextRound, players.length);
+    io.to(lobbyId).emit('startRound', gameData);
+  } catch (err) {
+    console.log(err.message);
+  }
 };
 
-const trickPrediction = function (socket, io, payload) {
+const trickPrediction = async function (socket, io, payload) {
   console.log('Trick prediction: ', payload);
 
-  // TODO: Add a trick prediction to the game
+  const player = await getByWebsocket(socket.id);
+  const lobby = await getCurrentLobby(player.uuid);
+  const lobbyId = lobby.lobbyid;
+  const playerSize = lobby.players.length;
 
-  // TODO: If all predictions are made -> send play event
+  addPrediction(lobbyId, player.uuid, payload);
+
+  const predictions = getPredictionsForCurrentRound(lobbyId);
+  if (getPredictionCount(predictions) === playerSize) {
+    const players = Object.keys(getPlayers(lobbyId));
+    io.to(lobbyId).emit('nextPlayer', players.indexOf(getNextPlayer(lobbyId)));
+  }
 };
 
 module.exports = {

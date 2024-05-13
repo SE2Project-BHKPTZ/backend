@@ -21,6 +21,7 @@
     ],
     "no-param-reassign": ["error", { "props": false }],
     "no-await-in-loop": "off",
-    "func-names": "off"
+    "func-names": "off",
+    "no-multi-assign": "off"
   }
 }
