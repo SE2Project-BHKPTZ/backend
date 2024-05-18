@@ -58,10 +58,9 @@ const cardPlayed = async function (socket, io, payload) {
     const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
     setStichPlayer(lobbyId, winner.player);
 
-    const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
-
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
+      const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
       setNextPlayer(lobbyId, players[idxNextPlayer]);
       io.to(lobbyId).emit('nextPlayer', idxNextPlayer);
       return;
