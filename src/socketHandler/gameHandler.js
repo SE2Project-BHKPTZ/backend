@@ -44,8 +44,11 @@ const cardPlayed = async function (socket, io, payload) {
     const idxPlayer = getIdxOfPlayer(lobbyId, player.uuid);
 
     addCardPlayed(lobbyId, player, card);
-    payload.playerIdx = idxPlayer;
-    io.to(lobbyId).emit('cardPlayed', payload);
+
+    const cardPlayedPayload = payload;
+    delete cardPlayedPayload.trump;
+    cardPlayedPayload.playerIdx = idxPlayer;
+    io.to(lobbyId).emit('cardPlayed', cardPlayedPayload);
 
     // If all cards are played calculate outcome
     const subround = getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds[
