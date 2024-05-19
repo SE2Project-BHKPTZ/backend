@@ -11,6 +11,7 @@ const {
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
   calculateScoreForRound,
+  getPlayersScores,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby } = require('../services/lobby.service');
@@ -77,6 +78,7 @@ const cardPlayed = async function(socket, io, payload) {
 
     // Calculate points for the round
     calculateScoreForRound(lobbyId);
+    io.to(lobbyId).emit('score', getPlayersScores(lobbyId))
 
     // If it is, start a new round
     addRound(lobbyId);
