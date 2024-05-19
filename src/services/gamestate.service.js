@@ -15,6 +15,7 @@ function createRound() {
   return {
     predictions: [],
     subrounds: [],
+    scores: [],
   };
 }
 
@@ -64,7 +65,7 @@ exports.addCardPlayed = (lobbyId, player, card) => {
 exports.setStichPlayer = (lobbyId, player) => {
   games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds[games[lobbyId]
     .rounds[games[lobbyId].rounds.length - 1]
-    .subrounds.length - 1].stichPlayer = player;
+    .subrounds.length - 1].stichPlayer = player.uuid;
 };
 
 exports.setNextPlayer = (lobbyId, player) => {
@@ -73,4 +74,56 @@ exports.setNextPlayer = (lobbyId, player) => {
 
 exports.addRound = (lobbyId) => {
   games[lobbyId].rounds.push(createRound());
+};
+
+const getRoundTricks = exports.getRoundTricks = (lobbyId, round) => {
+  const tricks = {};
+  const roundIndex = round - 1;
+
+  games[lobbyId].rounds[roundIndex].subrounds.forEach((subround) => {
+    console.log(subround);
+    const trickPlayer = subround.stichPlayer;
+    tricks[trickPlayer] = (tricks[trickPlayer] || 0) + 1;
+  });
+
+  return tricks;
+};
+
+exports.getCurrentRoundTricks = (lobbyId) => getRoundTricks(lobbyId, getCurrentRoundCount(lobbyId));
+
+exports.getPlayersScores = (lobbyId) => {
+  const players = games[lobbyId].players;
+  const scores = {};
+  for (const player in players) {
+    scores[player] = exports.getPlayerScore(lobbyId, player);
+  }
+  return scores;
+};
+
+exports.getPlayerScore = (lobbyId, player) => {
+  let totalScore = 0;
+  games[lobbyId].rounds.forEach((round) => {
+    const playerScore = round.scores.find(score => score.player === player);
+    if (playerScore) {
+      totalScore += playerScore.score;
+    }
+  });
+  return totalScore;
+};
+
+exports.getPlayerScoreForRound = (lobbyId, player, round) => {
+  const roundIndex = round - 1;
+  const roundData = games[lobbyId].rounds[roundIndex];
+  const playerScore = roundData.scores.find(score => score.player === player);
+  return playerScore ? playerScore.score : 0;
+};
+
+const setPlayerScore = exports.setPlayerScore = (lobbyId, player, score) => {
+  games[lobbyId].rounds[getCurrentRoundCount(lobbyId) - 1].scores.push({ player, score });
+};
+
+exports.setRoundScores = (lobbyId, scores) => {
+  Object.entries(scores).forEach(([userId, score]) => {
+    setPlayerScore(lobbyId, userId, score);
+  });
 };
