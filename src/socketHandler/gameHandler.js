@@ -10,11 +10,7 @@ const {
   addPrediction,
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
-  getPlayersScores,
-  getRoundTricks,
-  getCurrentRoundTricks,
-  setRoundScores,
-  getPlayerScoreForRound,
+  calculateScoreForRound,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby } = require('../services/lobby.service');
@@ -80,7 +76,7 @@ const cardPlayed = async function(socket, io, payload) {
     }
 
     // Calculate points for the round
-    calculateScoreForRound(lobbyId)
+    calculateScoreForRound(lobbyId);
 
     // If it is, start a new round
     addRound(lobbyId);
@@ -93,26 +89,8 @@ const cardPlayed = async function(socket, io, payload) {
   }
 };
 
-const calculateScoreForRound = (lobbyId) => {
-  const predictions = getPredictionsForCurrentRound(lobbyId);
-
-  const tricks = getCurrentRoundTricks(lobbyId);
-
-  const points = {}
-  Object.entries(predictions).forEach(([userId, prediction]) => {
-    const trickCount = tricks[userId] || 0;
-    if (prediction === trickCount) {
-      points[userId] = 20 + (trickCount * 10);
-    } else {
-      points[userId] = prediction * -10;
-    }
-  });
-
-  setRoundScores(lobbyId, points);
-};
-
 const trickPrediction = async function(socket, io, payload) {
-  console.log('Trick prediction: ', payload);
+  console.log(`Trick prediction: ${payload}, ${socket.id}`);
 
   const player = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(player.uuid);

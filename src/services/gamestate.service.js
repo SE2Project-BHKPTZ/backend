@@ -43,7 +43,7 @@ const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRoun
 const getPredictionsForRound = exports.getPredictionsForRound = (lobbyId, round) => games[lobbyId].rounds[round - 1].predictions;
 
 // eslint-disable-next-line max-len
-exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
+const getPredictionsForCurrentRound = exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
 
 exports.getPredictionCount = (predictions) => Object.keys(predictions).length;
 
@@ -89,21 +89,13 @@ const getRoundTricks = exports.getRoundTricks = (lobbyId, round) => {
   return tricks;
 };
 
-exports.getCurrentRoundTricks = (lobbyId) => getRoundTricks(lobbyId, getCurrentRoundCount(lobbyId));
+// eslint-disable-next-line max-len
+const getCurrentRoundTricks = exports.getCurrentRoundTricks = (lobbyId) => getRoundTricks(lobbyId, getCurrentRoundCount(lobbyId));
 
-exports.getPlayersScores = (lobbyId) => {
-  const players = games[lobbyId].players;
-  const scores = {};
-  for (const player in players) {
-    scores[player] = exports.getPlayerScore(lobbyId, player);
-  }
-  return scores;
-};
-
-exports.getPlayerScore = (lobbyId, player) => {
+const getPlayerScore = exports.getPlayerScore = (lobbyId, player) => {
   let totalScore = 0;
   games[lobbyId].rounds.forEach((round) => {
-    const playerScore = round.scores.find(score => score.player === player);
+    const playerScore = round.scores.find((score) => score.player === player);
     if (playerScore) {
       totalScore += playerScore.score;
     }
@@ -111,10 +103,21 @@ exports.getPlayerScore = (lobbyId, player) => {
   return totalScore;
 };
 
+exports.getPlayersScores = (lobbyId) => {
+  const { players } = games[lobbyId];
+  const scores = {};
+
+  Object.keys(players).forEach((player) => {
+    scores[player] = getPlayerScore(lobbyId, player);
+  });
+
+  return scores;
+};
+
 exports.getPlayerScoreForRound = (lobbyId, player, round) => {
   const roundIndex = round - 1;
   const roundData = games[lobbyId].rounds[roundIndex];
-  const playerScore = roundData.scores.find(score => score.player === player);
+  const playerScore = roundData.scores.find((score) => score.player === player);
   return playerScore ? playerScore.score : 0;
 };
 
@@ -122,8 +125,26 @@ const setPlayerScore = exports.setPlayerScore = (lobbyId, player, score) => {
   games[lobbyId].rounds[getCurrentRoundCount(lobbyId) - 1].scores.push({ player, score });
 };
 
-exports.setRoundScores = (lobbyId, scores) => {
+const setRoundScores = exports.setRoundScores = (lobbyId, scores) => {
   Object.entries(scores).forEach(([userId, score]) => {
     setPlayerScore(lobbyId, userId, score);
   });
+};
+
+exports.calculateScoreForRound = (lobbyId) => {
+  const predictions = getPredictionsForCurrentRound(lobbyId);
+
+  const tricks = getCurrentRoundTricks(lobbyId);
+
+  const points = {};
+  Object.entries(predictions).forEach(([userId, prediction]) => {
+    const trickCount = tricks[userId] || 0;
+    if (prediction === trickCount) {
+      points[userId] = 20 + (trickCount * 10);
+    } else {
+      points[userId] = Math.abs(prediction - trickCount) * -10;
+    }
+  });
+
+  setRoundScores(lobbyId, points);
 };
