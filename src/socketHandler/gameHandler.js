@@ -7,6 +7,7 @@ const {
   addRound,
   addSubround,
   getPlayers,
+  getIdxOfPlayer,
   addPrediction,
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
@@ -39,12 +40,17 @@ const cardPlayed = async function (socket, io, payload) {
     const { value, suit, trump } = payload;
     const card = new Card(suit, value);
 
+    const players = Object.keys(getPlayers(lobbyId));
+    const idxPlayer = getIdxOfPlayer(lobbyId, player.uuid);
+
     addCardPlayed(lobbyId, player, card);
-    payload.player = player.username;
-    io.to(lobbyId).emit('cardPlayed', payload);
+
+    const cardPlayedPayload = payload;
+    delete cardPlayedPayload.trump;
+    cardPlayedPayload.playerIdx = idxPlayer;
+    io.to(lobbyId).emit('cardPlayed', cardPlayedPayload);
 
     // If all cards are played calculate outcome
-    const players = Object.keys(getPlayers(lobbyId));
     const subround = getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds[
       getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length - 1
     ];
@@ -55,11 +61,9 @@ const cardPlayed = async function (socket, io, payload) {
     const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
     setStichPlayer(lobbyId, winner.player);
 
-    const idxPlayer = players.indexOf(player.uuid);
-    const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
-
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
+      const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
       setNextPlayer(lobbyId, players[idxNextPlayer]);
       io.to(lobbyId).emit('nextPlayer', idxNextPlayer);
       return;
@@ -72,8 +76,8 @@ const cardPlayed = async function (socket, io, payload) {
     const currentRound = getRounds(lobbyId).length;
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
-      setNextPlayer(lobbyId, players[idxNextPlayer]);
-      io.to(lobbyId).emit('nextSubround', idxNextPlayer);
+      setNextPlayer(lobbyId, winner.player.uuid);
+      io.to(lobbyId).emit('nextSubround', getIdxOfPlayer(lobbyId, winner.player.uuid));
       return;
     }
 

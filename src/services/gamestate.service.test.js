@@ -3,6 +3,7 @@ const {
   getGame,
   getRounds,
   getPlayers,
+  getIdxOfPlayer,
   getNextPlayer,
   addPrediction,
   addSubround,
@@ -77,5 +78,10 @@ describe('Game Functions', () => {
       player1: { cards: [], points: 0 },
       player2: { cards: [], points: 0 },
     });
+  });
+
+  test('Get index of player', () => {
+    const playerIdx = getIdxOfPlayer(gameId, 'player1');
+    expect(playerIdx).toBe(0);
   });
 });

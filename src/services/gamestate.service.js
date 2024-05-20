@@ -36,6 +36,8 @@ exports.getPlayers = (lobbyId) => games[lobbyId].players;
 
 exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
+exports.getIdxOfPlayer = (lobbyId, uuid) => Object.keys(games[lobbyId].players).indexOf(uuid);
+
 const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRounds(lobbyId).length;
 
 // eslint-disable-next-line max-len
