@@ -37,6 +37,9 @@ exports.getPlayers = (lobbyId) => games[lobbyId].players;
 
 exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
+// eslint-disable-next-line max-len
+const getIdxOfPlayer = exports.getIdxOfPlayer = (lobbyId, uuid) => Object.keys(games[lobbyId].players).indexOf(uuid);
+
 const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRounds(lobbyId).length;
 
 // eslint-disable-next-line max-len
@@ -81,7 +84,6 @@ const getRoundTricks = exports.getRoundTricks = (lobbyId, round) => {
   const roundIndex = round - 1;
 
   games[lobbyId].rounds[roundIndex].subrounds.forEach((subround) => {
-    console.log(subround);
     const trickPlayer = subround.stichPlayer;
     tricks[trickPlayer] = (tricks[trickPlayer] || 0) + 1;
   });
@@ -108,7 +110,8 @@ exports.getPlayersScores = (lobbyId) => {
   const scores = {};
 
   Object.keys(players).forEach((player) => {
-    scores[player] = getPlayerScore(lobbyId, player);
+    // eslint-disable-next-line max-len
+    scores[player] = { score: getPlayerScore(lobbyId, player), index: getIdxOfPlayer(lobbyId, player) };
   });
 
   return scores;
@@ -133,7 +136,6 @@ const setRoundScores = exports.setRoundScores = (lobbyId, scores) => {
 
 exports.calculateScoreForRound = (lobbyId) => {
   const predictions = getPredictionsForCurrentRound(lobbyId);
-
   const tricks = getCurrentRoundTricks(lobbyId);
 
   const points = {};

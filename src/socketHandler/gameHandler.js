@@ -7,6 +7,7 @@ const {
   addRound,
   addSubround,
   getPlayers,
+  getIdxOfPlayer,
   addPrediction,
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
@@ -18,7 +19,7 @@ const { getCurrentLobby } = require('../services/lobby.service');
 const { getByWebsocket } = require('../services/user.service');
 const Card = require('../utils/card.model');
 
-const startGame = async function(socket, io) {
+const startGame = async function (socket, io) {
   const user = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(user.uuid);
 
@@ -30,8 +31,8 @@ const startGame = async function(socket, io) {
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
-const cardPlayed = async function(socket, io, payload) {
-  console.log('Card played: ', payload);
+const cardPlayed = async function (socket, io, payload) {
+  console.log(`Card played: ${JSON.stringify(payload)}`);
 
   const player = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(player.uuid);
@@ -39,23 +40,26 @@ const cardPlayed = async function(socket, io, payload) {
 
   try {
     const { value, suit, trump } = payload;
-    const card = new Card(suit, value);
+    const card = new Card(suit, parseInt(value, 10));
+
+    const players = Object.keys(getPlayers(lobbyId));
+    const idxPlayer = getIdxOfPlayer(lobbyId, player.uuid);
 
     addCardPlayed(lobbyId, player, card);
-    payload.player = player.username;
-    io.to(lobbyId).emit('cardPlayed', payload);
+
+    const cardPlayedPayload = payload;
+    delete cardPlayedPayload.trump;
+    cardPlayedPayload.playerIdx = idxPlayer;
+    io.to(lobbyId).emit('cardPlayed', cardPlayedPayload);
 
     // If all cards are played calculate outcome
-    const players = Object.keys(getPlayers(lobbyId));
     const subround = getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds[
       getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length - 1
     ];
 
-    const idxPlayer = players.indexOf(player.uuid);
-    const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
-
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
+      const idxNextPlayer = idxPlayer + 1 === players.length ? 0 : idxPlayer + 1;
       setNextPlayer(lobbyId, players[idxNextPlayer]);
       io.to(lobbyId).emit('nextPlayer', idxNextPlayer);
       return;
@@ -71,14 +75,14 @@ const cardPlayed = async function(socket, io, payload) {
     const currentRound = getRounds(lobbyId).length;
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
-      setNextPlayer(lobbyId, players[idxNextPlayer]);
-      io.to(lobbyId).emit('nextSubround', idxNextPlayer);
+      setNextPlayer(lobbyId, winner.player.uuid);
+      io.to(lobbyId).emit('nextSubround', getIdxOfPlayer(lobbyId, winner.player.uuid));
       return;
     }
 
     // Calculate points for the round
     calculateScoreForRound(lobbyId);
-    io.to(lobbyId).emit('score', getPlayersScores(lobbyId))
+    io.to(lobbyId).emit('score', getPlayersScores(lobbyId));
 
     // If it is, start a new round
     addRound(lobbyId);
@@ -91,7 +95,7 @@ const cardPlayed = async function(socket, io, payload) {
   }
 };
 
-const trickPrediction = async function(socket, io, payload) {
+const trickPrediction = async function (socket, io, payload) {
   console.log(`Trick prediction: ${payload}, ${socket.id}`);
 
   const player = await getByWebsocket(socket.id);
