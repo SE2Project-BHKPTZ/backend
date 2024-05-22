@@ -38,7 +38,8 @@ exports.getWinningCard = (cards, trump) => {
     if (!cards[i].isJester()
       && (winningCard.isJester()
         || (cards[i].isTrump(trump) && !winningCard.isTrump(trump))
-        || (cards[i].suit === winningCard.suit && cards[i].value > winningCard.value))) {
+        || (cards[i].suit === winningCard.suit
+          && parseInt(cards[i].value, 10) > parseInt(winningCard.value, 10)))) {
       winningCard = cards[i];
     }
   }
