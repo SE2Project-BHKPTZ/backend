@@ -9,11 +9,11 @@ class Card {
   }
 
   isWizard() {
-    return this.value === '14';
+    return this.value === 14;
   }
 
   isJester() {
-    return this.value === '0';
+    return this.value === 0;
   }
 }
 
