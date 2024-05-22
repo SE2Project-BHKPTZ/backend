@@ -47,15 +47,23 @@ const cardPlayed = async function (socket, io, payload) {
 
     addCardPlayed(lobbyId, player, card);
 
-    const cardPlayedPayload = payload;
-    delete cardPlayedPayload.trump;
-    cardPlayedPayload.playerIdx = idxPlayer;
-    io.to(lobbyId).emit('cardPlayed', cardPlayedPayload);
-
     // If all cards are played calculate outcome
     const subround = getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds[
       getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length - 1
     ];
+
+    // Calculate winner
+    const cards = subround.cardsPlayed.map((play) => play.card);
+    const winningCard = getWinningCard(cards, trump);
+    const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
+    const winnerIdx = getIdxOfPlayer(lobbyId, winner.player.uuid);
+    setStichPlayer(lobbyId, winner.player);
+
+    const cardPlayedPayload = payload;
+    delete cardPlayedPayload.trump;
+    cardPlayedPayload.playerIdx = idxPlayer;
+    cardPlayedPayload.winnerIdx = winnerIdx;
+    io.to(lobbyId).emit('cardPlayed', cardPlayedPayload);
 
     // players still left to play this subround
     if (subround.cardsPlayed.length < players.length) {
@@ -65,18 +73,12 @@ const cardPlayed = async function (socket, io, payload) {
       return;
     }
 
-    // Calculate winner
-    const cards = subround.cardsPlayed.map((play) => play.card);
-    const winningCard = getWinningCard(cards, trump);
-    const winner = subround.cardsPlayed.find((play) => play.card === winningCard);
-    setStichPlayer(lobbyId, winner.player);
-
     // are there subrounds left
     const currentRound = getRounds(lobbyId).length;
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
       addSubround(lobbyId);
       setNextPlayer(lobbyId, winner.player.uuid);
-      io.to(lobbyId).emit('nextSubround', getIdxOfPlayer(lobbyId, winner.player.uuid));
+      io.to(lobbyId).emit('nextSubround', winnerIdx);
       return;
     }
 
