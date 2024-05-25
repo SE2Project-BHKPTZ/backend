@@ -11,6 +11,8 @@ const {
   addPrediction,
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
+  calculateScoreForRound,
+  getPlayersScores,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby } = require('../services/lobby.service');
@@ -30,7 +32,7 @@ const startGame = async function (socket, io) {
 };
 
 const cardPlayed = async function (socket, io, payload) {
-  console.log('Card played: ', payload);
+  console.log(`Card played: ${JSON.stringify(payload)}`);
 
   const player = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(player.uuid);
@@ -38,7 +40,7 @@ const cardPlayed = async function (socket, io, payload) {
 
   try {
     const { value, suit, trump } = payload;
-    const card = new Card(suit, value);
+    const card = new Card(suit, parseInt(value, 10));
 
     const players = Object.keys(getPlayers(lobbyId));
     const idxPlayer = getIdxOfPlayer(lobbyId, player.uuid);
@@ -71,9 +73,6 @@ const cardPlayed = async function (socket, io, payload) {
       return;
     }
 
-    // Calculate points for the round (if any)
-    // TODO: calculate & save points
-
     // are there subrounds left
     const currentRound = getRounds(lobbyId).length;
     if (getRounds(lobbyId)[getRounds(lobbyId).length - 1].subrounds.length < currentRound) {
@@ -82,6 +81,10 @@ const cardPlayed = async function (socket, io, payload) {
       io.to(lobbyId).emit('nextSubround', winnerIdx);
       return;
     }
+
+    // Calculate points for the round
+    calculateScoreForRound(lobbyId);
+    io.to(lobbyId).emit('score', getPlayersScores(lobbyId));
 
     // If it is, start a new round
     addRound(lobbyId);
@@ -95,7 +98,7 @@ const cardPlayed = async function (socket, io, payload) {
 };
 
 const trickPrediction = async function (socket, io, payload) {
-  console.log('Trick prediction: ', payload);
+  console.log(`Trick prediction: ${payload}, ${socket.id}`);
 
   const player = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(player.uuid);

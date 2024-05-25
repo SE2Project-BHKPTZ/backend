@@ -15,6 +15,7 @@ function createRound() {
   return {
     predictions: [],
     subrounds: [],
+    scores: [],
   };
 }
 
@@ -36,7 +37,8 @@ exports.getPlayers = (lobbyId) => games[lobbyId].players;
 
 exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
-exports.getIdxOfPlayer = (lobbyId, uuid) => Object.keys(games[lobbyId].players).indexOf(uuid);
+// eslint-disable-next-line max-len
+const getIdxOfPlayer = exports.getIdxOfPlayer = (lobbyId, uuid) => Object.keys(games[lobbyId].players).indexOf(uuid);
 
 const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRounds(lobbyId).length;
 
@@ -44,7 +46,7 @@ const getCurrentRoundCount = exports.getCurrentRoundCount = (lobbyId) => getRoun
 const getPredictionsForRound = exports.getPredictionsForRound = (lobbyId, round) => games[lobbyId].rounds[round - 1].predictions;
 
 // eslint-disable-next-line max-len
-exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
+const getPredictionsForCurrentRound = exports.getPredictionsForCurrentRound = (lobbyId) => getPredictionsForRound(lobbyId, getCurrentRoundCount(lobbyId));
 
 exports.getPredictionCount = (predictions) => Object.keys(predictions).length;
 
@@ -66,7 +68,7 @@ exports.addCardPlayed = (lobbyId, player, card) => {
 exports.setStichPlayer = (lobbyId, player) => {
   games[lobbyId].rounds[games[lobbyId].rounds.length - 1].subrounds[games[lobbyId]
     .rounds[games[lobbyId].rounds.length - 1]
-    .subrounds.length - 1].stichPlayer = player;
+    .subrounds.length - 1].stichPlayer = player.uuid;
 };
 
 exports.setNextPlayer = (lobbyId, player) => {
@@ -75,4 +77,76 @@ exports.setNextPlayer = (lobbyId, player) => {
 
 exports.addRound = (lobbyId) => {
   games[lobbyId].rounds.push(createRound());
+};
+
+const getRoundTricks = exports.getRoundTricks = (lobbyId, round) => {
+  const tricks = {};
+  const roundIndex = round - 1;
+
+  games[lobbyId].rounds[roundIndex].subrounds.forEach((subround) => {
+    const trickPlayer = subround.stichPlayer;
+    tricks[trickPlayer] = (tricks[trickPlayer] || 0) + 1;
+  });
+
+  return tricks;
+};
+
+// eslint-disable-next-line max-len
+const getCurrentRoundTricks = exports.getCurrentRoundTricks = (lobbyId) => getRoundTricks(lobbyId, getCurrentRoundCount(lobbyId));
+
+const getPlayerScore = exports.getPlayerScore = (lobbyId, player) => {
+  let totalScore = 0;
+  games[lobbyId].rounds.forEach((round) => {
+    const playerScore = round.scores.find((score) => score.player === player);
+    if (playerScore) {
+      totalScore += playerScore.score;
+    }
+  });
+  return totalScore;
+};
+
+exports.getPlayersScores = (lobbyId) => {
+  const { players } = games[lobbyId];
+  const scores = {};
+
+  Object.keys(players).forEach((player) => {
+    // eslint-disable-next-line max-len
+    scores[player] = { score: getPlayerScore(lobbyId, player), index: getIdxOfPlayer(lobbyId, player) };
+  });
+
+  return scores;
+};
+
+exports.getPlayerScoreForRound = (lobbyId, player, round) => {
+  const roundIndex = round - 1;
+  const roundData = games[lobbyId].rounds[roundIndex];
+  const playerScore = roundData.scores.find((score) => score.player === player);
+  return playerScore ? playerScore.score : 0;
+};
+
+const setPlayerScore = exports.setPlayerScore = (lobbyId, player, score) => {
+  games[lobbyId].rounds[getCurrentRoundCount(lobbyId) - 1].scores.push({ player, score });
+};
+
+const setRoundScores = exports.setRoundScores = (lobbyId, scores) => {
+  Object.entries(scores).forEach(([userId, score]) => {
+    setPlayerScore(lobbyId, userId, score);
+  });
+};
+
+exports.calculateScoreForRound = (lobbyId) => {
+  const predictions = getPredictionsForCurrentRound(lobbyId);
+  const tricks = getCurrentRoundTricks(lobbyId);
+
+  const points = {};
+  Object.entries(predictions).forEach(([userId, prediction]) => {
+    const trickCount = tricks[userId] || 0;
+    if (prediction === trickCount) {
+      points[userId] = 20 + (trickCount * 10);
+    } else {
+      points[userId] = Math.abs(prediction - trickCount) * -10;
+    }
+  });
+
+  setRoundScores(lobbyId, points);
 };

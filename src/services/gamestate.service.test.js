@@ -11,18 +11,26 @@ const {
   setStichPlayer,
   setNextPlayer,
   addRound,
+  getRoundTricks,
+  getCurrentRoundTricks,
+  getPlayersScores,
+  getPlayerScore,
+  getPlayerScoreForRound,
+  setPlayerScore,
+  setRoundScores,
+  calculateScoreForRound,
 } = require('./gamestate.service');
 
 describe('Game Functions', () => {
-  const gameId = 'lobby1';
+  let gameId;
+  let player1;
+  let player2;
 
-  beforeAll(() => {
-    // Create a game before each test
-    const player1 = {};
-    player1.uuid = 'player1';
-    const player2 = {};
-    player2.uuid = 'player2';
-    createGame('lobby1', [player1, player2]);
+  beforeEach(() => {
+    gameId = 'lobby1';
+    player1 = { uuid: 'player1' };
+    player2 = { uuid: 'player2' };
+    createGame(gameId, [player1, player2]);
   });
 
   test('Creates a game correctly', () => {
@@ -31,7 +39,7 @@ describe('Game Functions', () => {
         player1: { cards: [], points: 0 },
         player2: { cards: [], points: 0 },
       },
-      rounds: [{ predictions: [], subrounds: [] }],
+      rounds: [{ predictions: [], subrounds: [], scores: [] }],
       nextPlayer: 'player1',
     });
   });
@@ -49,12 +57,14 @@ describe('Game Functions', () => {
   });
 
   test('Sets stich player for a subround', () => {
-    setStichPlayer(gameId, 'player1');
+    addSubround(gameId);
+    setStichPlayer(gameId, { uuid: 'player1' });
     const { subrounds } = getRounds(gameId)[0];
     expect(subrounds[subrounds.length - 1].stichPlayer).toBe('player1');
   });
 
   test('Adds a card played to a subround', () => {
+    addSubround(gameId);
     addCardPlayed(gameId, 'player1', 'Ace of Spades');
     const rounds = getRounds(gameId);
     const latestSubround = rounds[0].subrounds[rounds[0].subrounds.length - 1];
@@ -83,5 +93,67 @@ describe('Game Functions', () => {
   test('Get index of player', () => {
     const playerIdx = getIdxOfPlayer(gameId, 'player1');
     expect(playerIdx).toBe(0);
+  });
+
+  test('Get round tricks', () => {
+    addSubround(gameId);
+    setStichPlayer(gameId, { uuid: 'player1' });
+    const tricks = getRoundTricks(gameId, 1);
+    expect(tricks).toEqual({ player1: 1 });
+  });
+
+  test('Get current round tricks', () => {
+    addSubround(gameId);
+    setStichPlayer(gameId, { uuid: 'player1' });
+    const tricks = getCurrentRoundTricks(gameId);
+    expect(tricks).toEqual({ player1: 1 });
+  });
+
+  test('Get player score', () => {
+    setPlayerScore(gameId, 'player1', 10);
+    const score = getPlayerScore(gameId, 'player1');
+    expect(score).toBe(10);
+  });
+
+  test('Get players scores', () => {
+    setPlayerScore(gameId, 'player1', 10);
+    const scores = getPlayersScores(gameId);
+    expect(scores).toEqual({
+      player1: { score: 10, index: 0 },
+      player2: { score: 0, index: 1 },
+    });
+  });
+
+  test('Get player score for round', () => {
+    setPlayerScore(gameId, 'player1', 10);
+    const score = getPlayerScoreForRound(gameId, 'player1', 1);
+    expect(score).toBe(10);
+  });
+
+  test('Set player score', () => {
+    addRound(gameId);
+    setPlayerScore(gameId, 'player1', 20);
+    const score = getPlayerScoreForRound(gameId, 'player1', 2);
+    expect(score).toBe(20);
+  });
+
+  test('Set round scores', () => {
+    addRound(gameId);
+    setRoundScores(gameId, { player1: 30, player2: 15 });
+    const score1 = getPlayerScoreForRound(gameId, 'player1', 2);
+    const score2 = getPlayerScoreForRound(gameId, 'player2', 2);
+    expect(score1).toBe(30);
+    expect(score2).toBe(15);
+  });
+
+  test('Calculate score for round', () => {
+    addPrediction(gameId, 'player1', 1);
+    addPrediction(gameId, 'player2', 1);
+    addSubround(gameId);
+    setStichPlayer(gameId, { uuid: 'player1' });
+    calculateScoreForRound(gameId);
+    const scores = getPlayersScores(gameId);
+    expect(scores.player1.score).toBe(30);
+    expect(scores.player2.score).toBe(-10);
   });
 });
