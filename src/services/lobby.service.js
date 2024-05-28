@@ -4,6 +4,8 @@ const userService = require('./user.service');
 
 const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
 
+const getLobbyByName = async (name) => Lobby.findOne({ name });
+
 const getRandomString = async (len) => {
   const arr = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let ans = '';
@@ -43,6 +45,12 @@ exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then
 
 exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
   (resolve, reject) => {
+    getLobbyByName(name).then((lobbyWithName) => {
+      if (lobbyWithName != null) {
+        reject(new Error('Lobby with name already exists'));
+      }
+    });
+
     isPlayerInLobby(playerUUID).then(async (data) => {
       if (data != null) {
         reject(new Error('Player is already in an lobby'));
@@ -144,6 +152,18 @@ exports.kick = async (adminUUID, playerUUID) => new Promise(
     });
   },
 );
+
+exports.updateLobbyStatus = async (lobbyId, status) => {
+  const lobby = await getByLobbyID(lobbyId);
+  if (!lobby) {
+    throw new Error('Lobby not found');
+  }
+
+  lobby.status = status;
+  await lobby.save();
+
+  return lobby;
+};
 
 exports.exportedForTesting = {
   getRandomString,
