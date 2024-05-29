@@ -153,7 +153,7 @@ describe('Function leave', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{ uuid: 'testPlayerUUID', username: 'testuser' }, { uuid: 'testPlayerUUID2', username: 'testuser2' }],
-      save: jest.fn(),
+      save: jest.fn().mockResolvedValueOnce(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValueOnce(mockLobby);
@@ -185,7 +185,7 @@ describe('Function kick', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{ uuid: 'testPlayerUUID', username: 'testuser' }, { uuid: 'testPlayerUUID2', username: 'testuser2' }],
-      save: jest.fn(),
+      save: jest.fn().mockResolvedValueOnce(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValue(mockLobby);
@@ -219,7 +219,7 @@ describe('Function kick', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{}, { uuid: 'testPlayerUUID', username: 'testuser' }],
-      save: jest.fn(),
+      save: jest.fn().mockResolvedValueOnce(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValue(mockLobby);
