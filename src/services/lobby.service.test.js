@@ -257,6 +257,6 @@ describe('Function updateLobbyStatus', () => {
   it('should throw error if lobby is not found', async () => {
     Lobby.findOne = jest.fn().mockResolvedValue(null);
 
-    expect(updateLobbyStatus('12345', 'RUNNING')).rejects.toThrow('Lobby not found');
+    await expect(updateLobbyStatus('12345', 'RUNNING')).rejects.toThrow('Lobby not found');
   });
 });
