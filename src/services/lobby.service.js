@@ -4,6 +4,8 @@ const userService = require('./user.service');
 
 const getByLobbyID = async (lobbyid) => Lobby.findOne({ lobbyid });
 
+const getLobbyByName = async (name) => Lobby.findOne({ name });
+
 const getRandomString = async (len) => {
   const arr = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let ans = '';
@@ -41,33 +43,35 @@ exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then
   return 'delete successfull';
 }));
 
-exports.create = async (name, isPublic, maxPlayers, playerUUID) => new Promise(
-  (resolve, reject) => {
-    isPlayerInLobby(playerUUID).then(async (data) => {
-      if (data != null) {
-        reject(new Error('Player is already in an lobby'));
-      } else {
-        const lobby = new Lobby({
-          uuid: uuidv4(),
-          lobbyid: await getRandomString(6),
-          status: 'CREATED',
-          name,
-          players: [
-            { uuid: playerUUID, username: (await userService.getByUUID(playerUUID)).username }],
-          maxPlayers,
-          results: [],
-          isPublic,
-        });
-        lobby.save().then((result, err) => {
-          if (err) reject(new Error(err));
-          userService.getByUUID(playerUUID).then(async (user) => {
-            resolve({ lobbyid: result.lobbyid, websocket: user.websocket });
-          });
-        });
-      }
-    });
-  },
-);
+exports.create = async (name, isPublic, maxPlayers, playerUUID) => {
+  const lobbyWithName = await getLobbyByName(name);
+  if (lobbyWithName != null) {
+    throw new Error('Lobby with name already exists');
+  }
+
+  const playerInLobby = await isPlayerInLobby(playerUUID);
+  if (playerInLobby != null) {
+    throw new Error('Player is already in an lobby');
+  }
+
+  const lobby = new Lobby({
+    uuid: uuidv4(),
+    lobbyid: await getRandomString(6),
+    status: 'CREATED',
+    name,
+    players: [
+      { uuid: playerUUID, username: (await userService.getByUUID(playerUUID)).username },
+    ],
+    maxPlayers,
+    results: [],
+    isPublic,
+  });
+
+  const result = await lobby.save();
+  const user = await userService.getByUUID(playerUUID);
+
+  return { lobbyid: result.lobbyid, websocket: user.websocket };
+};
 
 exports.join = async (lobbyID, playerUUID) => new Promise(
   (resolve, reject) => {
@@ -144,6 +148,18 @@ exports.kick = async (adminUUID, playerUUID) => new Promise(
     });
   },
 );
+
+exports.updateLobbyStatus = async (lobbyId, status) => {
+  const lobby = await getByLobbyID(lobbyId);
+  if (!lobby) {
+    throw new Error('Lobby not found');
+  }
+
+  lobby.status = status;
+  await lobby.save();
+
+  return lobby;
+};
 
 exports.exportedForTesting = {
   getRandomString,

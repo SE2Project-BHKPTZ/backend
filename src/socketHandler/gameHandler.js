@@ -15,13 +15,19 @@ const {
   getPlayersScores,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
-const { getCurrentLobby } = require('../services/lobby.service');
+const { getCurrentLobby, updateLobbyStatus } = require('../services/lobby.service');
 const { getByWebsocket } = require('../services/user.service');
 const Card = require('../utils/card.model');
 
 const startGame = async function (socket, io) {
   const user = await getByWebsocket(socket.id);
   const lobby = await getCurrentLobby(user.uuid);
+
+  try {
+    await updateLobbyStatus(lobby.lobbyid, 'RUNNING');
+  } catch (e) {
+    console.log(`Error while updating lobby status: ${e}`);
+  }
 
   createGame(lobby.lobbyid, lobby.players);
 
