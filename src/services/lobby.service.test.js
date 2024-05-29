@@ -4,7 +4,7 @@ const {
   leave,
   delete: deleteLobby,
   kick,
-  exportedForTesting,
+  exportedForTesting, updateLobbyStatus,
 } = require('./lobby.service');
 
 const { getRandomString } = exportedForTesting;
@@ -85,9 +85,17 @@ describe('Function create', () => {
   });
 
   it('should reject with an error if player is already in a lobby', async () => {
-    Lobby.findOne = jest.fn().mockResolvedValueOnce({});
+    Lobby.findOne = jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce({});
 
     await expect(create('Test Lobby', true, 5, 'testPlayerUUID')).rejects.toThrow('Player is already in an lobby');
+
+    expect(Lobby).not.toHaveBeenCalled();
+  });
+
+  it('should reject with an error if a lobby with the same name already exists', async () => {
+    Lobby.findOne = jest.fn().mockResolvedValueOnce({});
+
+    await expect(create('Test Lobby', true, 5, 'testPlayerUUID')).rejects.toThrow('Lobby with name already exists');
 
     expect(Lobby).not.toHaveBeenCalled();
   });
@@ -145,7 +153,7 @@ describe('Function leave', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{ uuid: 'testPlayerUUID', username: 'testuser' }, { uuid: 'testPlayerUUID2', username: 'testuser2' }],
-      save: jest.fn().mockResolvedValueOnce(),
+      save: jest.fn(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValueOnce(mockLobby);
@@ -177,7 +185,7 @@ describe('Function kick', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{ uuid: 'testPlayerUUID', username: 'testuser' }, { uuid: 'testPlayerUUID2', username: 'testuser2' }],
-      save: jest.fn().mockResolvedValueOnce(),
+      save: jest.fn(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValue(mockLobby);
@@ -211,7 +219,7 @@ describe('Function kick', () => {
     const mockLobby = {
       uuid: 'uuid',
       players: [{}, { uuid: 'testPlayerUUID', username: 'testuser' }],
-      save: jest.fn().mockResolvedValueOnce(),
+      save: jest.fn(),
     };
 
     Lobby.findOne = jest.fn().mockResolvedValue(mockLobby);
@@ -219,5 +227,36 @@ describe('Function kick', () => {
     userService.getByUUID.mockResolvedValueOnce({ websocket: 'testWebsocketId' });
 
     await expect(kick('testPlayerUUID', 'testPlayerUUID2')).rejects.toThrow('You are not the Admin');
+  });
+});
+
+describe('Function updateLobbyStatus', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should succeed if lobby is found', async () => {
+    const mockLobby = {
+      uuid: 'uuid',
+      players: [{ uuid: 'testPlayerUUID', username: 'testuser' }, { uuid: 'testPlayerUUID2', username: 'testuser2' }],
+      save: jest.fn(),
+    };
+
+    Lobby.findOne = jest.fn().mockResolvedValue(mockLobby);
+
+    const result = await updateLobbyStatus('12345', 'RUNNING');
+
+    const expectedLobby = {
+      ...mockLobby,
+      status: 'RUNNING',
+    };
+    await expect(result).toMatchObject(expectedLobby);
+    await expect(mockLobby.save).toHaveBeenCalled();
+  });
+
+  it('should throw error if lobby is not found', async () => {
+    Lobby.findOne = jest.fn().mockResolvedValue(null);
+
+    expect(updateLobbyStatus('12345', 'RUNNING')).rejects.toThrow('Lobby not found');
   });
 });
