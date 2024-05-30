@@ -180,6 +180,7 @@ exports.updateLobbyStatus = async (lobbyId, status) => {
 
 exports.exportedForTesting = {
   getRandomString,
+  calculateMaxRounds,
 };
 
 exports.getByLobbyID = getByLobbyID;

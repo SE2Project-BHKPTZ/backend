@@ -7,7 +7,7 @@ const {
   exportedForTesting, updateLobbyStatus,
 } = require('./lobby.service');
 
-const { getRandomString } = exportedForTesting;
+const { getRandomString, calculateMaxRounds } = exportedForTesting;
 const Lobby = require('../models/lobby.model');
 const userService = require('./user.service');
 
@@ -40,6 +40,32 @@ describe('Function getRandomString', () => {
   it('should return an empty string if length is negative', async () => {
     const result = await getRandomString(-1);
     expect(result).toBe('');
+  });
+});
+
+describe('Function calculateMaxRounds', () => {
+  test('should return 20 when maxPlayers is 3', () => {
+    expect(calculateMaxRounds(3)).toBe(20);
+  });
+
+  test('should return 15 when maxPlayers is 4', () => {
+    expect(calculateMaxRounds(4)).toBe(15);
+  });
+
+  test('should return 12 when maxPlayers is 5', () => {
+    expect(calculateMaxRounds(5)).toBe(12);
+  });
+
+  test('should return 10 when maxPlayers is 6', () => {
+    expect(calculateMaxRounds(6)).toBe(10);
+  });
+
+  test('should return -1 for any other number of maxPlayers', () => {
+    expect(calculateMaxRounds(2)).toBe(-1);
+    expect(calculateMaxRounds(7)).toBe(-1);
+    expect(calculateMaxRounds(0)).toBe(-1);
+    expect(calculateMaxRounds(-1)).toBe(-1);
+    expect(calculateMaxRounds(100)).toBe(-1);
   });
 });
 
