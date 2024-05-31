@@ -5,6 +5,10 @@ class Card {
   }
 
   isTrump(trump) {
+    if (trump == null) {
+      return false;
+    }
+
     return this.suit === trump;
   }
 
