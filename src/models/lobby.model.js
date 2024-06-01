@@ -37,6 +37,10 @@ const lobbySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  maxRounds: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('Lobby', lobbySchema);

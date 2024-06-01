@@ -33,7 +33,7 @@ const startGame = async function (socket, io) {
 
   addSubround(lobby.lobbyid);
 
-  const gameData = startRound(1, 3);
+  const gameData = startRound(1, 3, lobby.maxRounds);
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
@@ -96,7 +96,7 @@ const cardPlayed = async function (socket, io, payload) {
     addRound(lobbyId);
     addSubround(lobbyId);
     const nextRound = getRounds(lobbyId).length;
-    const gameData = startRound(nextRound, players.length);
+    const gameData = startRound(nextRound, players.length, lobby.maxRounds);
     io.to(lobbyId).emit('startRound', gameData);
   } catch (err) {
     console.log(err.message);

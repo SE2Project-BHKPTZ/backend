@@ -61,6 +61,7 @@ async function createLobby(req, res) {
       req.body.isPublic.toString(),
       req.body.maxPlayers,
       req.uuid,
+      req.body.maxRounds,
     );
 
     try {

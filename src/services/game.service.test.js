@@ -9,49 +9,13 @@ const Card = require('../utils/card.model');
 const { isLastRound } = exportedForTesting;
 
 describe('Function isLastRound', () => {
-  it('should return true (3 players)', async () => {
-    const result = isLastRound(20, 3);
+  it('should return true', async () => {
+    const result = isLastRound(3, 3);
     expect(result).toBe(true);
     expect(typeof result).toBe('boolean');
   });
 
-  it('should return true (4 players)', async () => {
-    const result = isLastRound(15, 4);
-    expect(result).toBe(true);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return true (5 players)', async () => {
-    const result = isLastRound(12, 5);
-    expect(result).toBe(true);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return true (6 players)', async () => {
-    const result = isLastRound(10, 6);
-    expect(result).toBe(true);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return false (3 players)', async () => {
-    const result = isLastRound(2, 3);
-    expect(result).toBe(false);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return false (4 players)', async () => {
-    const result = isLastRound(2, 4);
-    expect(result).toBe(false);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return false (5 players)', async () => {
-    const result = isLastRound(2, 5);
-    expect(result).toBe(false);
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should return false (6 players)', async () => {
+  it('should return false', async () => {
     const result = isLastRound(2, 6);
     expect(result).toBe(false);
     expect(typeof result).toBe('boolean');
@@ -94,7 +58,8 @@ describe('startRound', () => {
   test('should return an object with hands and without trump', () => {
     const round = 20;
     const playerCount = 3;
-    const result = startRound(round, playerCount);
+    const maxRounds = 20;
+    const result = startRound(round, playerCount, maxRounds);
     expect(result).toHaveProperty('hands');
     expect(result).toHaveProperty('trump');
     expect(result.trump).toEqual(null);

@@ -43,7 +43,22 @@ exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then
   return 'delete successfull';
 }));
 
-exports.create = async (name, isPublic, maxPlayers, playerUUID) => {
+function calculateMaxRounds(maxPlayers) {
+  switch (maxPlayers) {
+    case 3:
+      return 20;
+    case 4:
+      return 15;
+    case 5:
+      return 12;
+    case 6:
+      return 10;
+    default:
+      return -1;
+  }
+}
+
+exports.create = async (name, isPublic, maxPlayers, playerUUID, maxRounds) => {
   const lobbyWithName = await getLobbyByName(name);
   if (lobbyWithName != null) {
     throw new Error('Lobby with name already exists');
@@ -53,6 +68,7 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => {
   if (playerInLobby != null) {
     throw new Error('Player is already in an lobby');
   }
+  const maxRoundsCalculated = maxRounds !== undefined ? maxRounds : calculateMaxRounds(maxPlayers);
 
   const lobby = new Lobby({
     uuid: uuidv4(),
@@ -65,6 +81,7 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID) => {
     maxPlayers,
     results: [],
     isPublic,
+    maxRounds: maxRoundsCalculated,
   });
 
   const result = await lobby.save();
@@ -163,6 +180,7 @@ exports.updateLobbyStatus = async (lobbyId, status) => {
 
 exports.exportedForTesting = {
   getRandomString,
+  calculateMaxRounds,
 };
 
 exports.getByLobbyID = getByLobbyID;
