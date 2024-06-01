@@ -33,7 +33,8 @@ const startGame = async function (socket, io) {
 
   addSubround(lobby.lobbyid);
 
-  const gameData = startRound(1, 3, lobby.maxRounds);
+  const players = Object.keys(getPlayers(lobby.lobbyid));
+  const gameData = startRound(1, players.length, lobby.maxRounds);
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
@@ -93,15 +94,16 @@ const cardPlayed = async function (socket, io, payload) {
     io.to(lobbyId).emit('score', getPlayersScores(lobbyId));
 
     // If it is, start a new round
-    if (getRounds(lobbyId).length + 1 > lobby.maxRounds) {
-      io.to(lobbyId).emit('endGame', getPlayersScores(lobbyId));
-    } else {
+    if (getRounds(lobbyId).length + 1 < lobby.maxRounds) {
       addRound(lobbyId);
       addSubround(lobbyId);
       const nextRound = getRounds(lobbyId).length;
       const gameData = startRound(nextRound, players.length, lobby.maxRounds);
       io.to(lobbyId).emit('startRound', gameData);
+      return;
     }
+
+    io.to(lobbyId).emit('endGame', getPlayersScores(lobbyId));
   } catch (err) {
     console.log(err.message);
   }
