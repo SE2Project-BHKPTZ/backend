@@ -75,7 +75,7 @@ describe('Function delete', () => {
       then: jest.fn((callback) => callback({ deletedCount: 1 })),
     });
 
-    await expect(deleteLobby('testUUID')).resolves.toBe('delete successfull');
+    await expect(deleteLobby('testUUID')).resolves.toBe('delete successful');
 
     expect(Lobby.deleteOne).toHaveBeenCalledWith({ uuid: 'testUUID' });
   });
@@ -189,7 +189,7 @@ describe('Function leave', () => {
 
     userService.getByUUID.mockResolvedValueOnce({ websocket: 'testWebsocketId' });
 
-    await expect(leave('testPlayerUUID')).resolves.toMatchObject({ lobbyid: undefined, message: 'lobby left successfull', websocket: 'testWebsocketId' });
+    await expect(leave('testPlayerUUID')).resolves.toMatchObject({ lobbyid: undefined, message: 'lobby left successfully', websocket: 'testWebsocketId' });
 
     expect(mockLobby.players).not.toContain('testPlayerUUID');
     expect(mockLobby.save).toHaveBeenCalled();
@@ -218,7 +218,7 @@ describe('Function kick', () => {
 
     userService.getByUUID.mockResolvedValueOnce({ websocket: 'testWebsocketId' });
 
-    await expect(kick('testPlayerUUID', 'testPlayerUUID2')).resolves.toMatchObject({ lobbyid: undefined, message: 'user kicked successfull', websocket: 'testWebsocketId' });
+    await expect(kick('testPlayerUUID', 'testPlayerUUID2')).resolves.toMatchObject({ lobbyid: undefined, message: 'user kicked successfully', websocket: 'testWebsocketId' });
 
     expect(mockLobby.players).not.toContain('testPlayerUUID');
     expect(mockLobby.save).toHaveBeenCalled();

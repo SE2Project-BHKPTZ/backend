@@ -36,7 +36,7 @@ exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then
   if (data.deletedCount === 0) {
     throw Error('Lobby not found');
   }
-  return 'delete successfull';
+  return 'delete successful';
 }));
 
 function calculateMaxRounds(maxPlayers) {
@@ -121,13 +121,13 @@ exports.leave = async (playerUUID) => {
   lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
   if (lobby.players.length === 0) {
     this.delete(lobby.uuid);
-    return 'lobby left successfull';
+    return 'lobby left successfully';
   }
 
   await lobby.save();
 
   const user = await userService.getByUUID(playerUUID);
-  return { message: 'lobby left successfull', lobbyid: lobby.lobbyid, websocket: user.websocket };
+  return { message: 'lobby left successfully', lobbyid: lobby.lobbyid, websocket: user.websocket };
 };
 
 exports.kick = async (adminUUID, playerUUID) => {
@@ -145,7 +145,7 @@ exports.kick = async (adminUUID, playerUUID) => {
     await lobby.save();
 
     const user = await userService.getByUUID(playerUUID);
-    return { message: 'user kicked successfull', lobbyid: lobby.lobbyid, websocket: user.websocket };
+    return { message: 'user kicked successfully', lobbyid: lobby.lobbyid, websocket: user.websocket };
   }
   throw new Error('You are not the Admin');
 };

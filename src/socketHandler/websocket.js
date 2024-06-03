@@ -5,23 +5,20 @@ const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
 
 let io;
 
-exports.createIO = (server) => {
-  io = socketio(server, { cors: { origin: '*' } });
-  const onConnection = (socket) => {
-    console.log('connection');
-    socket.on('startGame', (payload) => startGame(socket, io, payload));
-    socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
-    socket.on('trickPrediction', (payload) => trickPrediction(socket, io, payload));
-  };
-  io.use((socket, next) => {
-    const { _query: { uuid } } = socket.request;
-    setWebsocket(uuid, socket.id);
-    next();
-  });
+const handleSocketEvents = (socket) => {
+  console.log('connection');
+  socket.on('startGame', (payload) => startGame(socket, io, payload));
+  socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
+  socket.on('trickPrediction', (payload) => trickPrediction(socket, io, payload));
+};
 
-  io.on('connection', onConnection);
+const attachWebsocketMiddleware = (socket, next) => {
+  const { _query: { uuid } } = socket.request;
+  setWebsocket(uuid, socket.id);
+  next();
+};
 
-  // SocketIO admin UI
+const setupAdminUI = () => {
   if (process.env.SIO_ADMINUI_USERNAME && process.env.SIO_ADMINUI_PASSWORD) {
     instrument(io, {
       auth: {
@@ -32,6 +29,15 @@ exports.createIO = (server) => {
       mode: 'development',
     });
   }
+};
+
+exports.createIO = (server) => {
+  io = socketio(server, { cors: { origin: '*' } });
+
+  io.use(attachWebsocketMiddleware);
+  io.on('connection', handleSocketEvents);
+
+  setupAdminUI(io);
 };
 
 exports.io = () => io;

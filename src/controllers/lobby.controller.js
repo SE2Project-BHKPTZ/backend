@@ -8,6 +8,7 @@ async function getLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function getCurrentLobby(req, res) {
   try {
     res.json(await lobbyService.getCurrentLobby(req.uuid));
@@ -19,6 +20,7 @@ async function getCurrentLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function deleteLobby(req, res) {
   if (req.query.uuid === undefined) {
     res.status(400).json({ message: 'uuid undefined' });
@@ -34,6 +36,7 @@ async function deleteLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function createLobby(req, res) {
   if (req.body.name === undefined) {
     res.status(400).json({ message: 'name undefined' });
@@ -80,6 +83,7 @@ async function createLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function joinLobby(req, res) {
   if (req.body.lobbyID === undefined) {
     res.status(400).json({ message: 'lobbyID undefined' });
@@ -105,6 +109,7 @@ async function joinLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function leaveLobby(req, res) {
   try {
     const response = await lobbyService.leave(req.uuid);
@@ -125,6 +130,7 @@ async function leaveLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 async function kickFromLobby(req, res) {
   if (req.body.uuid === undefined) {
     res.status(400).json({ message: 'uuid undefined' });
@@ -149,6 +155,7 @@ async function kickFromLobby(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 module.exports = {
   getLobby,
   getCurrentLobby,

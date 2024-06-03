@@ -34,6 +34,7 @@ const startGame = async function (socket, io) {
   addSubround(lobby.lobbyid);
 
   const players = Object.keys(getPlayers(lobby.lobbyid));
+  // TODO: Add try catch since startRound can throw an error
   const gameData = startRound(1, players.length, lobby.maxRounds);
   io.to(lobby.lobbyid).emit('startGame', gameData);
 };

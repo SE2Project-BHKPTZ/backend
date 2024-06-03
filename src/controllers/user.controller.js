@@ -67,6 +67,7 @@ async function refresh(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
 module.exports = {
   getUser,
   register,
