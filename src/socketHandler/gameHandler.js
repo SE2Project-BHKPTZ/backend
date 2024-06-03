@@ -20,33 +20,36 @@ const { getByWebsocket } = require('../services/user.service');
 const Card = require('../utils/card.model');
 
 const startGame = async function (socket, io) {
-  const user = await getByWebsocket(socket.id);
-  const lobby = await getCurrentLobby(user.uuid);
-
   try {
-    await updateLobbyStatus(lobby.lobbyid, 'RUNNING');
-  } catch (e) {
-    console.log(`Error while updating lobby status: ${e}`);
+    const user = await getByWebsocket(socket.id);
+    const lobby = await getCurrentLobby(user.uuid);
+
+    try {
+      await updateLobbyStatus(lobby.lobbyid, 'RUNNING');
+    } catch (err) {
+      console.log(`Error while updating lobby status: ${err.message}`);
+    }
+
+    createGame(lobby.lobbyid, lobby.players);
+
+    addSubround(lobby.lobbyid);
+
+    const players = Object.keys(getPlayers(lobby.lobbyid));
+    const gameData = startRound(1, players.length, lobby.maxRounds);
+    io.to(lobby.lobbyid).emit('startGame', gameData);
+  } catch (err) {
+    console.log(`Error while starting game: ${err.message}`);
   }
-
-  createGame(lobby.lobbyid, lobby.players);
-
-  addSubround(lobby.lobbyid);
-
-  const players = Object.keys(getPlayers(lobby.lobbyid));
-  // TODO: Add try catch since startRound can throw an error
-  const gameData = startRound(1, players.length, lobby.maxRounds);
-  io.to(lobby.lobbyid).emit('startGame', gameData);
 };
 
 const cardPlayed = async function (socket, io, payload) {
   console.log(`Card played: ${JSON.stringify(payload)}`);
 
-  const player = await getByWebsocket(socket.id);
-  const lobby = await getCurrentLobby(player.uuid);
-  const lobbyId = lobby.lobbyid;
-
   try {
+    const player = await getByWebsocket(socket.id);
+    const lobby = await getCurrentLobby(player.uuid);
+    const lobbyId = lobby.lobbyid;
+
     const { value, suit, trump } = payload;
     const card = new Card(suit, parseInt(value, 10));
 
@@ -113,17 +116,21 @@ const cardPlayed = async function (socket, io, payload) {
 const trickPrediction = async function (socket, io, payload) {
   console.log(`Trick prediction: ${payload}, ${socket.id}`);
 
-  const player = await getByWebsocket(socket.id);
-  const lobby = await getCurrentLobby(player.uuid);
-  const lobbyId = lobby.lobbyid;
-  const playerSize = lobby.players.length;
+  try {
+    const player = await getByWebsocket(socket.id);
+    const lobby = await getCurrentLobby(player.uuid);
+    const lobbyId = lobby.lobbyid;
+    const playerSize = lobby.players.length;
 
-  addPrediction(lobbyId, player.uuid, payload);
+    addPrediction(lobbyId, player.uuid, payload);
 
-  const predictions = getPredictionsForCurrentRound(lobbyId);
-  if (getPredictionCount(predictions) === playerSize) {
-    const players = Object.keys(getPlayers(lobbyId));
-    io.to(lobbyId).emit('nextPlayer', players.indexOf(getNextPlayer(lobbyId)));
+    const predictions = getPredictionsForCurrentRound(lobbyId);
+    if (getPredictionCount(predictions) === playerSize) {
+      const players = Object.keys(getPlayers(lobbyId));
+      io.to(lobbyId).emit('nextPlayer', players.indexOf(getNextPlayer(lobbyId)));
+    }
+  } catch (err) {
+    console.log(err.message);
   }
 };
 
