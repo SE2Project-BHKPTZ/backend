@@ -37,7 +37,7 @@ exports.createIO = (server) => {
   io.use(attachWebsocketMiddleware);
   io.on('connection', handleSocketEvents);
 
-  setupAdminUI(io);
+  setupAdminUI();
 };
 
 exports.io = () => io;
