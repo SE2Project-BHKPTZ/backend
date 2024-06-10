@@ -100,9 +100,7 @@ exports.setWebsocket = async (uuid, socketID) => {
     const user = await getByUUID(uuid);
     user.websocket = socketID;
     await user.save();
-    return 'websocket set';
   } catch (err) {
-    // TODO: Dont throw error since it kills the server
-    throw new Error(err);
+    console.log(err);
   }
 };
