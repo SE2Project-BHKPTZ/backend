@@ -20,6 +20,10 @@ jest.mock('jsonwebtoken', () => ({
 jest.mock('../models/user.model', () => jest.fn().mockImplementation(() => ({
   save: jest.fn(),
 })));
+
+const consoleLogMock = jest.spyOn(console, 'log')
+  .mockImplementation(() => { });
+
 process.env.ACCESS_TOKEN_TTL = '2h';
 
 describe('Function register', () => {
@@ -233,6 +237,7 @@ describe('Function setWebSocket', () => {
 
   it('rejects on error', async () => {
     User.findOne = jest.fn().mockRejectedValue('error');
-    await expect(setWebsocket('uuid', 'socketID')).rejects.toThrow('error');
+    await setWebsocket('uuid', 'socketID');
+    expect(consoleLogMock).toHaveBeenCalledWith('error');
   });
 });
