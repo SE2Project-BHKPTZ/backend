@@ -24,23 +24,19 @@ const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid.toS
 
 exports.getAll = async () => Lobby.find({});
 
-exports.getCurrentLobby = async (playerUUID) => new Promise(
-  (resolve, reject) => {
-    isPlayerInLobby(playerUUID).then(async (data) => {
-      if (data != null) {
-        resolve(data);
-      } else {
-        reject(new Error('Player is not in an lobby'));
-      }
-    });
-  },
-);
+exports.getCurrentLobby = async (playerUUID) => {
+  const playerInLobby = await isPlayerInLobby(playerUUID);
+  if (playerInLobby == null) {
+    throw new Error('Player is not in an lobby');
+  }
+  return playerInLobby;
+};
 
 exports.delete = async (uuid) => Lobby.deleteOne({ uuid: uuid.toString() }).then(((data) => {
   if (data.deletedCount === 0) {
     throw Error('Lobby not found');
   }
-  return 'delete successfull';
+  return 'delete successful';
 }));
 
 function calculateMaxRounds(maxPlayers) {
@@ -90,81 +86,69 @@ exports.create = async (name, isPublic, maxPlayers, playerUUID, maxRounds) => {
   return { lobbyid: result.lobbyid, websocket: user.websocket };
 };
 
-exports.join = async (lobbyID, playerUUID) => new Promise(
-  (resolve, reject) => {
-    isPlayerInLobby(playerUUID).then((data) => {
-      if (data != null) {
-        reject(new Error('Player is already in an lobby'));
-        return;
-      }
-      getByLobbyID(lobbyID).then(async (lobby) => {
-        if (lobby == null) {
-          reject(new Error('Lobby not found'));
-          return;
-        }
-        if (lobby.players.length === lobby.maxPlayers) {
-          reject(new Error('Lobby is full'));
-          return;
-        }
-        lobby.players.push(
-          { uuid: playerUUID, username: (await userService.getByUUID(playerUUID)).username },
-        );
-        lobby.save().then(() => {
-          userService.getByUUID(playerUUID).then(async (user) => {
-            resolve({ lobbyId: lobbyID, websocket: user.websocket });
-          });
-        });
-      });
-    });
-  },
-);
+exports.join = async (lobbyID, playerUUID) => {
+  const playerInLobby = await isPlayerInLobby(playerUUID);
+  if (playerInLobby != null) {
+    throw new Error('Player is already in an lobby');
+  }
 
-exports.leave = async (playerUUID) => new Promise(
-  (resolve, reject) => {
-    isPlayerInLobby(playerUUID).then((lobby) => {
-      if (lobby == null) {
-        reject(new Error('Player is not in an lobby'));
-        return;
-      }
-      lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
-      if (lobby.players.length === 0) {
-        this.delete(lobby.uuid);
-        resolve('lobby left successfull');
-        return;
-      }
-      lobby.save().then(() => {
-        userService.getByUUID(playerUUID).then(async (user) => {
-          resolve({ message: 'lobby left successfull', lobbyid: lobby.lobbyid, websocket: user.websocket });
-        });
-      });
-    });
-  },
-);
+  const lobby = await getByLobbyID(lobbyID);
 
-exports.kick = async (adminUUID, playerUUID) => new Promise(
-  (resolve, reject) => {
-    isPlayerInLobby(adminUUID).then((lobby) => {
-      if (lobby == null) {
-        reject(new Error('You are not in the lobby'));
-        return;
-      }
-      if (lobby.players[0].uuid === adminUUID) {
-        if (lobby.players.filter((player) => player.uuid === playerUUID).length === 0) {
-          reject(new Error('Player is not in an lobby'));
-          return;
-        }
-        lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
-        lobby.save().then(() => {
-          userService.getByUUID(playerUUID).then(async (user) => {
-            resolve({ message: 'user kicked successfull', lobbyid: lobby.lobbyid, websocket: user.websocket });
-          });
-        });
-      } else {
-        reject(new Error('You are not the Admin'));
-      }
-    });
-  },
-);
+  if (lobby == null) {
+    throw new Error('Lobby not found');
+  }
+
+  if (lobby.players.length === lobby.maxPlayers) {
+    throw new Error('Lobby is full');
+  }
+
+  lobby.players.push(
+    { uuid: playerUUID, username: (await userService.getByUUID(playerUUID)).username },
+  );
+
+  await lobby.save();
+
+  const user = await userService.getByUUID(playerUUID);
+  return { lobbyId: lobbyID, websocket: user.websocket };
+};
+
+exports.leave = async (playerUUID) => {
+  const lobby = await isPlayerInLobby(playerUUID);
+  if (lobby == null) {
+    throw new Error('Player is not in an lobby');
+  }
+
+  lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
+  if (lobby.players.length === 0) {
+    this.delete(lobby.uuid);
+    return 'lobby left successfully';
+  }
+
+  await lobby.save();
+
+  const user = await userService.getByUUID(playerUUID);
+  return { message: 'lobby left successfully', lobbyid: lobby.lobbyid, websocket: user.websocket };
+};
+
+exports.kick = async (adminUUID, playerUUID) => {
+  const lobby = await isPlayerInLobby(adminUUID);
+  if (lobby == null) {
+    throw new Error('You are not in the lobby');
+  }
+
+  if (lobby.players[0].uuid === adminUUID) {
+    if (lobby.players.filter((player) => player.uuid === playerUUID).length === 0) {
+      throw new Error('Player is not in an lobby');
+    }
+
+    lobby.players = lobby.players.filter((player) => player.uuid !== playerUUID);
+    await lobby.save();
+
+    const user = await userService.getByUUID(playerUUID);
+    return { message: 'user kicked successfully', lobbyid: lobby.lobbyid, websocket: user.websocket };
+  }
+  throw new Error('You are not the Admin');
+};
 
 exports.updateLobbyStatus = async (lobbyId, status) => {
   const lobby = await getByLobbyID(lobbyId);

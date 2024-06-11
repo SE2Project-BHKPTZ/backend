@@ -48,11 +48,11 @@ jest.mock('../services/lobby.service.js', () => ({
       __v: 0,
     },
   ),
-  delete: jest.fn().mockReturnValue('delete successfull'),
+  delete: jest.fn().mockReturnValue('delete successful'),
   create: jest.fn().mockReturnValue('123HZD'),
-  join: jest.fn().mockReturnValue('lobby joined successfull'),
-  leave: jest.fn().mockReturnValue('lobby left successfull'),
-  kick: jest.fn().mockReturnValue('user kicked successfull'),
+  join: jest.fn().mockReturnValue('lobby joined successfully'),
+  leave: jest.fn().mockReturnValue('lobby left successfully'),
+  kick: jest.fn().mockReturnValue('user kicked successfully'),
 }));
 
 const socketService = require('../services/socket.service');
