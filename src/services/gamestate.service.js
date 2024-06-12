@@ -50,6 +50,8 @@ const getPredictionsForCurrentRound = exports.getPredictionsForCurrentRound = (l
 
 exports.getPredictionCount = (predictions) => Object.keys(predictions).length;
 
+exports.getCurrentRound = (lobbyId) => getRounds(lobbyId)[getCurrentRoundCount(lobbyId) - 1];
+
 exports.addPrediction = (lobbyId, player, prediction) => {
   games[lobbyId].rounds[games[lobbyId].rounds.length - 1].predictions[player] = prediction;
 };
@@ -74,6 +76,8 @@ exports.setStichPlayer = (lobbyId, player) => {
 exports.setNextPlayer = (lobbyId, player) => {
   games[lobbyId].nextPlayer = player;
 };
+
+exports.getNextPlayer = (lobbyId) => games[lobbyId].nextPlayer;
 
 exports.addRound = (lobbyId) => {
   games[lobbyId].rounds.push(createRound());

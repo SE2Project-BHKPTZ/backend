@@ -108,6 +108,7 @@ const cardPlayed = async function (socket, io, payload) {
     }
 
     io.to(lobbyId).emit('endGame', getPlayersScores(lobbyId));
+    // TODO: Leave lobby for all players
   } catch (err) {
     console.log(err.message);
   }
