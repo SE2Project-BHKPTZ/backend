@@ -5,7 +5,7 @@ const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
 const { getCurrentLobby } = require('../services/lobby.service');
 const socketService = require('../services/socket.service');
 const {
-  getCurrentRound, getGame, getPlayersScores, getNextPlayer, getCurrentRoundCount,
+  getCurrentRound, getPlayersScores, getNextPlayer, getCurrentRoundCount,
 } = require('../services/gamestate.service');
 
 let io;

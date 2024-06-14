@@ -13,7 +13,7 @@ function createPlayerFields(players) {
 
 function createRound() {
   return {
-    predictions: [],
+    predictions: {},
     subrounds: [],
     scores: [],
     deck: {},
