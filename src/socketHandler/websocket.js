@@ -4,7 +4,9 @@ const { setWebsocket } = require('../services/user.service');
 const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
 const { getCurrentLobby } = require('../services/lobby.service');
 const socketService = require('../services/socket.service');
-const { getCurrentRound } = require('../services/gamestate.service');
+const {
+  getCurrentRound, getGame, getPlayersScores, getNextPlayer, getCurrentRoundCount,
+} = require('../services/gamestate.service');
 
 let io;
 
@@ -24,10 +26,17 @@ const sendRecovery = async (socket) => {
     } else if (lobby.status === 'RUNNING') {
       console.log('Sending game recovery data');
       const { players, maxRounds } = lobby;
+      const nextPlayer = getNextPlayer(lobby.lobbyid);
       const round = getCurrentRound(lobby.lobbyid);
+      const playerScore = getPlayersScores(lobby.lobbyid);
+      const currentRound = getCurrentRoundCount(lobby.lobbyid);
 
-      // TODO: Also send cards and currentPlayer
-      socket.emit('recovery', { status: 'PLAYING', state: { players, maxRounds, round } });
+      socket.emit('recovery', {
+        status: 'PLAYING',
+        state: {
+          players, maxRounds, round, playerScore, nextPlayer, currentRound,
+        },
+      });
     }
   } catch (e) {
     console.log(e);

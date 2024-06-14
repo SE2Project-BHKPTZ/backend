@@ -16,6 +16,7 @@ function createRound() {
     predictions: [],
     subrounds: [],
     scores: [],
+    deck: {},
   };
 }
 
@@ -153,4 +154,9 @@ exports.calculateScoreForRound = (lobbyId) => {
   });
 
   setRoundScores(lobbyId, points);
+};
+
+exports.addCardsToRound = (lobbyId, deck) => {
+  games[lobbyId].rounds[getCurrentRoundCount(lobbyId) - 1].deck = deck;
+  console.log(games[lobbyId]);
 };

@@ -12,7 +12,7 @@ const {
   getPredictionsForCurrentRound, getPredictionCount,
   getNextPlayer,
   calculateScoreForRound,
-  getPlayersScores,
+  getPlayersScores, addCardsToRound,
 } = require('../services/gamestate.service');
 const { startRound, getWinningCard } = require('../services/game.service');
 const { getCurrentLobby, updateLobbyStatus } = require('../services/lobby.service');
@@ -36,6 +36,7 @@ const startGame = async function (socket, io) {
 
     const players = Object.keys(getPlayers(lobby.lobbyid));
     const gameData = startRound(1, players.length, lobby.maxRounds);
+    addCardsToRound(lobby.lobbyid, gameData);
     io.to(lobby.lobbyid).emit('startGame', gameData);
   } catch (err) {
     console.log(`Error while starting game: ${err.message}`);
@@ -103,6 +104,7 @@ const cardPlayed = async function (socket, io, payload) {
       addSubround(lobbyId);
       const nextRound = getRounds(lobbyId).length;
       const gameData = startRound(nextRound, players.length, lobby.maxRounds);
+      addCardsToRound(lobbyId, gameData);
       io.to(lobbyId).emit('startRound', gameData);
       return;
     }
