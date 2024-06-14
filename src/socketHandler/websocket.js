@@ -2,13 +2,14 @@ const socketio = require('socket.io');
 const { instrument } = require('@socket.io/admin-ui');
 const { setWebsocket } = require('../services/user.service');
 const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
-const { getCurrentLobby } = require('../services/lobby.service');
+const { getCurrentLobby, delete: deleteLobby } = require('../services/lobby.service');
 const socketService = require('../services/socket.service');
 const {
   getCurrentRound, getPlayersScores, getNextPlayer, getCurrentRoundCount,
 } = require('../services/gamestate.service');
 
 let io;
+const disconnectionTimers = {};
 
 const sendRecovery = async (socket) => {
   const { _query: { uuid } } = socket.request;
@@ -19,7 +20,6 @@ const sendRecovery = async (socket) => {
     const lobby = await getCurrentLobby(uuid);
     await socketService.joinRoomWithSocket(lobby.lobbyid, socket, uuid);
 
-    // TODO: Send lobby or game data to player
     if (lobby.status === 'CREATED') {
       console.log('Sending lobby recovery data');
       socket.emit('recovery', { status: 'JOIN_LOBBY', state: lobby });
@@ -38,8 +38,58 @@ const sendRecovery = async (socket) => {
         },
       });
     }
+    io.to(lobby.lobbyid).emit('lobby:reconnect', 'User reconnected');
   } catch (e) {
     console.log(e);
+  }
+};
+
+const sendDisconnectMessage = async (socket) => {
+  const { _query: { uuid } } = socket.request;
+
+  if (uuid === '') return;
+
+  try {
+    const lobby = await getCurrentLobby(uuid);
+    io.to(lobby.lobbyid).emit('lobby:disconnect', uuid);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const startDisconnectTimer = async (socket) => {
+  const { _query: { uuid } } = socket.request;
+
+  if (uuid === '') return;
+
+  try {
+    const lobby = await getCurrentLobby(uuid);
+
+    disconnectionTimers[uuid] = setTimeout(async () => {
+      console.log(`User ${uuid} did not reconnect within the grace period. Closing lobby.`);
+      try {
+        if (lobby) {
+          await deleteLobby(lobby.uuid);
+          io.to(lobby.lobbyid).emit('lobby:closed', 'Reconnect timeout has been reached. Closing lobby!');
+        }
+        delete disconnectionTimers[uuid];
+      } catch (e) {
+        console.log(e);
+      }
+    }, 2 * 60 * 1000);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const cancelDisconnectTimer = (socket) => {
+  const { _query: { uuid } } = socket.request;
+
+  if (uuid === '') return;
+
+  if (disconnectionTimers[uuid]) {
+    clearTimeout(disconnectionTimers[uuid]);
+    delete disconnectionTimers[uuid];
   }
 };
 
@@ -54,10 +104,13 @@ const handleSocketEvents = (socket) => {
   socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
   socket.on('trickPrediction', (payload) => trickPrediction(socket, io, payload));
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     console.log('Client disconnected');
+    await sendDisconnectMessage(socket);
+    await startDisconnectTimer(socket);
   });
 
+  cancelDisconnectTimer(socket);
   sendRecovery(socket);
 };
 
