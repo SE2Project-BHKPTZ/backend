@@ -18,8 +18,9 @@ const {
   getPlayerScoreForRound,
   setPlayerScore,
   setRoundScores,
-  calculateScoreForRound,
+  calculateScoreForRound, getCurrentRound, addCardsToRound,
 } = require('./gamestate.service');
+const Card = require('../utils/card.model');
 
 describe('Game Functions', () => {
   let gameId;
@@ -157,5 +158,17 @@ describe('Game Functions', () => {
     const scores = getPlayersScores(gameId);
     expect(scores.player1.score).toBe(30);
     expect(scores.player2.score).toBe(-10);
+  });
+
+  test('Add cards to round', () => {
+    const deck = {
+      hands: [[new Card('Hearts', 10)]],
+      trump: new Card('Hearts', 4),
+    };
+
+    addCardsToRound(gameId, deck);
+    const round = getCurrentRound(gameId);
+
+    expect(round.deck).toEqual(deck);
   });
 });
