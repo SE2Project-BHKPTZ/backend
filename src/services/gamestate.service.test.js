@@ -39,7 +39,9 @@ describe('Game Functions', () => {
         player1: { cards: [], points: 0 },
         player2: { cards: [], points: 0 },
       },
-      rounds: [{ predictions: [], subrounds: [], scores: [] }],
+      rounds: [{
+        predictions: {}, subrounds: [], scores: [], deck: {},
+      }],
       nextPlayer: 'player1',
     });
   });
