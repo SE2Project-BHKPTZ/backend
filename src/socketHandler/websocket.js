@@ -39,9 +39,7 @@ const sendRecovery = async (socket) => {
       });
     }
     io.to(lobby.lobbyid).emit('lobby:reconnect', 'User reconnected');
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) { /* empty */ }
 };
 
 const sendDisconnectMessage = async (socket) => {
@@ -52,9 +50,7 @@ const sendDisconnectMessage = async (socket) => {
   try {
     const lobby = await getCurrentLobby(uuid);
     io.to(lobby.lobbyid).emit('lobby:disconnect', uuid);
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) { /* empty */ }
 };
 
 const startDisconnectTimer = async (socket) => {
@@ -77,9 +73,7 @@ const startDisconnectTimer = async (socket) => {
         console.log(e);
       }
     }, 2 * 60 * 1000);
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) { /* empty */ }
 };
 
 const cancelDisconnectTimer = (socket) => {
@@ -94,11 +88,6 @@ const cancelDisconnectTimer = (socket) => {
 };
 
 const handleSocketEvents = (socket) => {
-  if (socket.recovered) {
-    // TODO: Recover the session (Send lobby infos, etc.)
-    console.log('Recovered socket');
-  }
-
   console.log(`connection: ${socket.id}`);
   socket.on('startGame', (payload) => startGame(socket, io, payload));
   socket.on('cardPlayed', (payload) => cardPlayed(socket, io, payload));
@@ -136,14 +125,8 @@ const setupAdminUI = () => {
 exports.createIO = (server) => {
   io = socketio(server, {
     cors: { origin: '*' },
-    pingInterval: 4000,
-    pingTimeout: 2000,
-    connectionStateRecovery: {
-      // the backup duration of the sessions and the packets
-      maxDisconnectionDuration: 50 * 60 * 1000,
-      // whether to skip middlewares upon successful recovery
-      skipMiddlewares: false,
-    },
+    pingInterval: 2000,
+    pingTimeout: 1000,
   });
 
   io.use(attachWebsocketMiddleware);

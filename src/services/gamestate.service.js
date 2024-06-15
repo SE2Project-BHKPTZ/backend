@@ -158,5 +158,4 @@ exports.calculateScoreForRound = (lobbyId) => {
 
 exports.addCardsToRound = (lobbyId, deck) => {
   games[lobbyId].rounds[getCurrentRoundCount(lobbyId) - 1].deck = deck;
-  console.log(games[lobbyId]);
 };
