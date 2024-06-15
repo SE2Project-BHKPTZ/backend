@@ -14,7 +14,12 @@ const getPlayerName = async (playerUUID) => {
 exports.joinRoom = async (roomName, socketID, playerUUID) => {
   const socket = await fetchSocket(socketID);
   const playerName = await getPlayerName(playerUUID);
+  socket.join(roomName);
+  io().to(roomName).emit('lobby:userJoined', { playerUUID, playerName });
+};
 
+exports.joinRoomWithSocket = async (roomName, socket, playerUUID) => {
+  const playerName = await getPlayerName(playerUUID);
   socket.join(roomName);
   io().to(roomName).emit('lobby:userJoined', { playerUUID, playerName });
 };
