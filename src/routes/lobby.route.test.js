@@ -29,6 +29,24 @@ jest.mock('../services/lobby.service.js', () => ({
       timestamp: '2024-04-13T06:56:57.162Z',
       __v: 0,
     }]),
+  getPublic: jest.fn().mockReturnValue([
+    {
+      _id: '661a2cb93c5b088ef67bc9fb',
+      uuid: '1500532b-377a-4d3c-9e75-6124bbc02b20',
+      lobbyid: 'HRTAFQ',
+      status: 'CREATED',
+      name: 'test',
+      players: [
+        'd3081378-f270-4e74-9463-b880123c49b6',
+      ],
+      maxPlayers: 3,
+      results: [
+
+      ],
+      isPublic: true,
+      timestamp: '2024-04-13T06:56:57.162Z',
+      __v: 0,
+    }]),
   getCurrentLobby: jest.fn().mockReturnValue(
     {
       _id: '661a2cb93c5b088ef67bc9fb',
@@ -80,7 +98,7 @@ describe('Lobby Route tests', () => {
       expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
     });
     test('should respond with a 500 status code', async () => {
-      lobbyService.getAll.mockImplementation(() => {
+      lobbyService.getPublic.mockImplementation(() => {
         throw new Error();
       });
       const response = await request(app).get('/lobbys').send();
