@@ -3,7 +3,7 @@ const socketService = require('../services/socket.service');
 
 async function getLobby(req, res) {
   try {
-    res.json(await lobbyService.getAll());
+    res.json(await lobbyService.getPublic());
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
