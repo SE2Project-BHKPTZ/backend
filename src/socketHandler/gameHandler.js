@@ -99,7 +99,7 @@ const cardPlayed = async function (socket, io, payload) {
     io.to(lobbyId).emit('score', getPlayersScores(lobbyId));
 
     // If it is, start a new round
-    if (getRounds(lobbyId).length + 1 < lobby.maxRounds) {
+    if (getRounds(lobbyId).length < lobby.maxRounds) {
       addRound(lobbyId);
       addSubround(lobbyId);
       const nextRound = getRounds(lobbyId).length;
