@@ -22,7 +22,7 @@ const getRandomString = async (len) => {
 
 const isPlayerInLobby = async (uuid) => Lobby.findOne({ 'players.uuid': uuid.toString() });
 
-exports.getPublic = async () => Lobby.find({'isPublic':true});
+exports.getPublic = async () => Lobby.find({ isPublic: true });
 
 exports.getAll = async () => Lobby.find({});
 
