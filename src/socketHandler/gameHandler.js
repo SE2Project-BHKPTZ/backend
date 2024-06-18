@@ -111,6 +111,9 @@ const cardPlayed = async function (socket, io, payload) {
 
     io.to(lobbyId).emit('endGame', getPlayersScores(lobbyId));
     await leave(player.uuid);
+
+    await updateLobbyStatus(lobbyId, 'FINISHED');
+    socket.leave(lobbyId);
   } catch (err) {
     console.log(err.message);
   }
