@@ -2,7 +2,7 @@ const socketio = require('socket.io');
 const { instrument } = require('@socket.io/admin-ui');
 const { setWebsocket } = require('../services/user.service');
 const { startGame, cardPlayed, trickPrediction } = require('./gameHandler');
-const { getCurrentLobby, delete: deleteLobby } = require('../services/lobby.service');
+const { getCurrentLobby, delete: deleteLobby, leave } = require('../services/lobby.service');
 const socketService = require('../services/socket.service');
 const {
   getCurrentRound, getPlayersScores, getNextPlayer, getCurrentRoundCount,
@@ -20,10 +20,7 @@ const sendRecovery = async (socket) => {
     const lobby = await getCurrentLobby(uuid);
     await socketService.joinRoomWithSocket(lobby.lobbyid, socket, uuid);
 
-    if (lobby.status === 'CREATED') {
-      console.log('Sending lobby recovery data');
-      socket.emit('recovery', { status: 'JOIN_LOBBY', state: lobby });
-    } else if (lobby.status === 'RUNNING') {
+    if (lobby.status === 'RUNNING') {
       console.log('Sending game recovery data');
       const { players, maxRounds } = lobby;
       const nextPlayer = getNextPlayer(lobby.lobbyid);
@@ -49,18 +46,12 @@ const sendDisconnectMessage = async (socket) => {
 
   try {
     const lobby = await getCurrentLobby(uuid);
-    io.to(lobby.lobbyid).emit('lobby:disconnect', uuid);
+    io.to(lobby.lobbyid).emit('lobby:disconnect', { playerUUID: uuid });
   } catch (e) { /* empty */ }
 };
 
-const startDisconnectTimer = async (socket) => {
-  const { _query: { uuid } } = socket.request;
-
-  if (uuid === '') return;
-
+const startDisconnectTimer = async (uuid, lobby) => {
   try {
-    const lobby = await getCurrentLobby(uuid);
-
     disconnectionTimers[uuid] = setTimeout(async () => {
       console.log(`User ${uuid} did not reconnect within the grace period. Closing lobby.`);
       try {
@@ -73,6 +64,23 @@ const startDisconnectTimer = async (socket) => {
         console.log(e);
       }
     }, 2 * 60 * 1000);
+  } catch (e) { /* empty */ }
+};
+
+const handleDisconnect = async (socket) => {
+  const { _query: { uuid } } = socket.request;
+
+  if (uuid === '') return;
+
+  try {
+    const lobby = await getCurrentLobby(uuid);
+
+    if (lobby.status === 'RUNNING') {
+      await startDisconnectTimer(uuid, lobby);
+    } else if (lobby.status === 'CREATED') {
+      await leave(uuid);
+      socket.leave(lobby.lobbyid);
+    }
   } catch (e) { /* empty */ }
 };
 
@@ -96,7 +104,7 @@ const handleSocketEvents = (socket) => {
   socket.on('disconnect', async () => {
     console.log('Client disconnected');
     await sendDisconnectMessage(socket);
-    await startDisconnectTimer(socket);
+    await handleDisconnect(socket);
   });
 
   cancelDisconnectTimer(socket);
